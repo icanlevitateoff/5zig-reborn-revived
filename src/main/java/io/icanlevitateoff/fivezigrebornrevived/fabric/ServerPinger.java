@@ -41,7 +41,7 @@ public class ServerPinger implements IServerPinger {
 	public void ping(IServerData iServerData) {
 		ServerDataWrapper serverData = (ServerDataWrapper) iServerData;
 		try {
-			//? if >=26 {
+			//? if >=1.21.11 {
 			/*handle.pingServer(serverData, () -> {
 			}, () -> {
 			}, net.minecraft.server.network.EventLoopGroupHolder.remote(net.minecraft.client.Minecraft.getInstance().options.useNativeTransport()));

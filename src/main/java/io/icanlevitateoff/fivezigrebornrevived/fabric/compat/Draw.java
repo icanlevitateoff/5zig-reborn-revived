@@ -160,7 +160,7 @@ public final class Draw {
 
 	/** The style of the character at the given pixel offset of a line, or null. */
 	public static Style styleAtWidth(Font font, FormattedCharSequence line, int x) {
-		//? if >=26 {
+		//? if >=1.21.11 {
 		/*Style[] found = {null};
 		float[] advance = {0};
 		line.accept((index, style, codepoint) -> {

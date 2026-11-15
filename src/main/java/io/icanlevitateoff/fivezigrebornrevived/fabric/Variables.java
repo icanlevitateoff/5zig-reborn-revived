@@ -756,7 +756,7 @@ public class Variables implements IVariables {
 
 	@Override
 	public boolean isFancyGraphicsEnabled() {
-		//? if >=26 {
+		//? if >=1.21.11 {
 		/*return options().graphicsPreset().get() != net.minecraft.client.GraphicsPreset.FAST;
 		*///?} else {
 		return Minecraft.useFancyGraphics();
@@ -1023,7 +1023,7 @@ public class Variables implements IVariables {
 			return null;
 		}
 		return level().getBiome(pos).unwrapKey()
-				//? if >=26 {
+				//? if >=1.21.11 {
 				/*.map(key -> I18n.get(Util.makeDescriptionId("biome", key.identifier())))
 				*///?} else {
 				.map(key -> I18n.get(Util.makeDescriptionId("biome", key.location())))

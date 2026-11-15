@@ -223,7 +223,7 @@ public class GuiHandle extends Screen implements IGuiHandle {
 
 	/** Runs the click event of a chat style the way vanilla chat does. */
 	public static boolean handleStyleClick(Screen screen, net.minecraft.network.chat.Style style) {
-		//? if >=26 {
+		//? if >=1.21.11 {
 		/*net.minecraft.network.chat.ClickEvent event = style.getClickEvent();
 		if (event == null) {
 			return false;

@@ -1,11 +1,11 @@
 # 5zig Reborn Revived: Fabric port (handoff notes)
 
-Targets: Fabric 1.20.1, 1.20.4, 1.21.1, 1.21.3–1.21.10, 26.3 (12 Stonecutter nodes, vcs/active version 1.21.8).
+Targets: Fabric 1.20.1, 1.20.4, 1.21.1, 1.21.3–1.21.11, 26.3 (13 Stonecutter nodes, vcs/active version 1.21.8).
 Versioning: `<mc>-v<mod.version>`, e.g. `5zig-Reborn-Revived-1.21.8-v0.1.0.jar`.
 
 ## Decisions
 - Build: Gradle 9.9.1, Stonecutter 0.7.10, Fabric Loom 1.19.4 (needs a Java 25 Gradle daemon, see
-  gradle/gradle-daemon-jvm.properties). `fabric-loom-remap` + Mojang mappings for 1.20.1–1.21.10,
+  gradle/gradle-daemon-jvm.properties). `fabric-loom-remap` + Mojang mappings for 1.20.1–1.21.11,
   plain `fabric-loom` (no mappings, no remap) for unobfuscated 26.x.
 - Java per node: 17 (1.20.x), 21 (1.21.x), 25 (26.x); the mixin compatibility level follows it.
 - Forge/launchwrapper builds dropped. Fabric only. Branch: `fabric-port`.

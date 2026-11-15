@@ -15,6 +15,7 @@ body:
       label: Minecraft version
       options:
         - "26.3"
+        - "1.21.11"
         - "1.21.10"
         - "1.21.9"
         - "1.21.8"
@@ -36,7 +37,7 @@ body:
     id: mod-version
     attributes:
       label: Mod version
-      placeholder: 1.21.8-v0.3.0
+      placeholder: 1.21.8-v0.3.1
     validations:
       required: true
   - type: input

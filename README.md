@@ -1,7 +1,7 @@
 # 5zig Reborn Revived
 a really stupid vibecoded port of 5zig reborn to modern versions of minecraft
 
-A Fabric revival of The 5zig Mod by IcanLevitate, for Minecraft 1.20.1, 1.20.4, 1.21.1, 1.21.3–1.21.10 and 26.3.
+A Fabric revival of The 5zig Mod by IcanLevitate, for Minecraft 1.20.1, 1.20.4, 1.21.1, 1.21.3–1.21.11 and 26.3.
 Based on [The 5zig Mod](https://github.com/5zig-reborn/The-5zig-Mod) by 5zig and the 5zig Reborn team
 (RoccoDev, zortax and contributors).
 
@@ -15,7 +15,7 @@ and put it in your `mods` folder. Requires **Fabric Loader 0.17.0+** and **Fabri
 | 1.20.3 / 1.20.4 | `5zig-Reborn-Revived-1.20.4-v<version>.jar` |
 | 1.21 / 1.21.1 | `5zig-Reborn-Revived-1.21.1-v<version>.jar` |
 | 1.21.2 / 1.21.3 | `5zig-Reborn-Revived-1.21.3-v<version>.jar` |
-| 1.21.4 – 1.21.10 | `5zig-Reborn-Revived-<minecraft version>-v<version>.jar` |
+| 1.21.4 – 1.21.11 | `5zig-Reborn-Revived-<minecraft version>-v<version>.jar` |
 | 26.3 | `5zig-Reborn-Revived-26.3-v<version>.jar` |
 
 ## What works

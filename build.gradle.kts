@@ -20,11 +20,11 @@ val loom = extensions.getByType<LoomGradleExtensionAPI>()
 // Generated from tools/replacements.txt; keep the two in sync.
 stonecutter {
     replacements {
-        regex(eval(current.version, ">=26")) {
+        regex(eval(current.version, ">=1.21.11")) {
             replace("\\bResourceLocation\\b", "Identifier")
             reverse("\\bIdentifier\\b", "ResourceLocation")
         }
-        regex(eval(current.version, ">=26")) {
+        regex(eval(current.version, ">=1.21.11")) {
             replace("\\bnet\\.minecraft\\.Util\\b", "net.minecraft.util.Util")
             reverse("\\bnet\\.minecraft\\.util\\.Util\\b", "net.minecraft.Util")
         }

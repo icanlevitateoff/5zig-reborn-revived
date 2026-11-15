@@ -77,6 +77,10 @@ public abstract class MixinChatComponent {
 	//? if >=26 {
 	/*@com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"))
+	*///?} else if >=1.21.11 {
+	/*// render is overloaded since 1.21.11: the public one only delegates to this one.
+	@com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method = "render(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IIZ)V",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"))
 	*///?} else {
 	@com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method = "render",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"))

@@ -1,6 +1,6 @@
 # cond|regex|replacement   (applied in order when cond holds; mirror in stonecutter.gradle.kts)
->=26|\bResourceLocation\b|Identifier
->=26|\bnet\.minecraft\.Util\b|net.minecraft.util.Util
+>=1.21.11|\bResourceLocation\b|Identifier
+>=1.21.11|\bnet\.minecraft\.Util\b|net.minecraft.util.Util
 >=26|\bnet\.minecraft\.client\.GuiMessageTag\b|net.minecraft.client.multiplayer.chat.GuiMessageTag
 >=26|\bGuiGraphics\b|GuiGraphicsExtractor
 >=26|\bVanillaHudElements\.STATUS_EFFECTS\b|VanillaHudElements.MOB_EFFECTS
