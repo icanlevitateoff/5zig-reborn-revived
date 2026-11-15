@@ -221,15 +221,25 @@ public class EventListener {
 
 	public void handlePluginMessage(String channel, ByteBuf packetData) {
 		if ("MC|Brand".equals(channel) || "minecraft:brand".equals(channel)) {
-			if (The5zigMod.getDataManager().getServer() == null) {
-				if (The5zigMod.getVars().getServer() != null) {
-					io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address =
-							io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(The5zigMod.getVars().getServer());
-					onServerConnect(address.host, address.port);
-				}
-			}
+			detectServer();
 		}
 		fireEvent(new PayloadEvent(channel, packetData));
+	}
+
+	/**
+	 * Called when the game receives a "join game" packet. On Fabric the brand payload above never
+	 * reaches the mod (vanilla handles it), so this is where a multiplayer join is noticed.
+	 */
+	public void onJoinGame() {
+		detectServer();
+	}
+
+	private void detectServer() {
+		if (The5zigMod.getDataManager().getServer() == null && The5zigMod.getVars().getServer() != null) {
+			io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address =
+					io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(The5zigMod.getVars().getServer());
+			onServerConnect(address.host, address.port);
+		}
 	}
 
 	public void onPlayerListHeaderFooter(TabList tabList) {

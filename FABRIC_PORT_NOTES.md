@@ -89,3 +89,8 @@ Versioning: `<mc>-v<mod.version>`, e.g. `5zig-Reborn-Revived-1.21.8-v0.1.0.jar`.
 5. Chat: time prefix, second chat (links clickable), chat search, highlight words, transparent background.
 6. Multiplayer list with "ping on server list"; tab list with "ping on tab"; own name tag (F5).
 7. Pause menu "confirm disconnect"; disconnect screen auto-reconnect countdown.
+- Server join detection: the brand payload never reaches the mod on Fabric, so `MixinClientPacketListener`
+  (handleLogin TAIL) calls `EventListener.onJoinGame` -> `onServerConnect`. Join texts only start on a
+  connection from `ConnectScreen.startConnecting`; later joins on the same connection are proxy switches.
+- Discord: own IPC client (`mod/discord/DiscordIpc`, JDK UNIX sockets / Windows pipe) replaced
+  DiscordIPC + junixsocket. App id in `DiscordRPCManager.CLIENT_ID`, large image asset key `logo`.

@@ -25,6 +25,9 @@ and put it in your `mods` folder. Requires **Fabric Loader 0.17.0+** and **Fabri
 - Ping on the tab list and on the server list
 - Account switcher with Microsoft accounts (sign in with a code at microsoft.com/link) and offline accounts
 - Confirm-disconnect, auto-reconnect, last-server button
+- Join auto-texts with delays in milliseconds, optionally waiting for a proxy (Velocity/BungeeCord) server
+  switch, e.g. `/server survival` and then `/home` once you are there
+- Discord Rich Presence (menu / server you play on)
 - "Now Playing" module and media keybinds (play/pause, next, previous) for any player: on Linux every
   MPRIS player (Spotify, tidal-hifi, browsers, ...), on Windows whatever shows in the Windows media
   controls (Spotify, TIDAL, browsers, ...), on macOS Spotify and Apple Music. If Minecraft runs as a

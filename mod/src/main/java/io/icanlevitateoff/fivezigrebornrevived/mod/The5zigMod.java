@@ -23,7 +23,6 @@ import eu.the5zig.mod.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jagrosh.discordipc.exceptions.NoDiscordClientException;
 import io.icanlevitateoff.fivezigrebornrevived.mod.account.AccountManager;
 import io.icanlevitateoff.fivezigrebornrevived.mod.api.ServerAPIBackend;
 import io.icanlevitateoff.fivezigrebornrevived.mod.asm.Transformer;
@@ -254,8 +253,6 @@ public class The5zigMod {
 		discordRPCManager = new DiscordRPCManager();
 		try {
 			discordRPCManager.init();
-		} catch (NoDiscordClientException e) {
-			logger.warn("No Discord Client found: disabling Rich Presence.");
 		} catch (Throwable e) {
 			logger.warn("Could not start Discord Rich Presence: disabling it.", e);
 		}

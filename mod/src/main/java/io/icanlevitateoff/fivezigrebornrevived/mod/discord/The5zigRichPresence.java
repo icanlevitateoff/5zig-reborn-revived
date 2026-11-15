@@ -16,11 +16,10 @@
  * along with The 5zig Mod.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 package io.icanlevitateoff.fivezigrebornrevived.mod.discord;
 
-import com.jagrosh.discordipc.entities.RichPresence;
-
-import java.time.OffsetDateTime;
+import com.google.gson.JsonObject;
 
 public class The5zigRichPresence {
     private String text, state, smallImage;
@@ -44,13 +43,24 @@ public class The5zigRichPresence {
         this.smallImage = smallImage;
     }
 
-    RichPresence build() {
-        RichPresence.Builder builder = new RichPresence.Builder();
-        return builder.setDetails(text)
-                .setState(state)
-                .setSmallImage(smallImage)
-                .setStartTimestamp(OffsetDateTime.now())
-                .setLargeImage(DiscordRPCManager.IMG_LOGO)
-                .build();
+    /** The "activity" object of Discord's SET_ACTIVITY command. */
+    JsonObject toJson(long startSeconds) {
+        JsonObject activity = new JsonObject();
+        if (text != null) {
+            activity.addProperty("details", text);
+        }
+        if (state != null) {
+            activity.addProperty("state", state);
+        }
+        JsonObject timestamps = new JsonObject();
+        timestamps.addProperty("start", startSeconds);
+        activity.add("timestamps", timestamps);
+        JsonObject assets = new JsonObject();
+        assets.addProperty("large_image", DiscordRPCManager.IMG_LOGO);
+        if (smallImage != null) {
+            assets.addProperty("small_image", smallImage);
+        }
+        activity.add("assets", assets);
+        return activity;
     }
 }

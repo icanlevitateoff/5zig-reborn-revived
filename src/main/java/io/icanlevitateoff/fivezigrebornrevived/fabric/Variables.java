@@ -464,6 +464,19 @@ public class Variables implements IVariables {
 		Options options = options();
 		((OptionsAccessor) options).the5zig$setKeyMappings(ArrayUtils.addAll(options.keyMappings, custom));
 		options.load();
+		//? if <26 {
+		// Older versions saved the number-pad defaults as key 0, which GLFW rejects: use the default again.
+		boolean fixed = false;
+		for (KeyMapping mapping : custom) {
+			if ("key.keyboard.0".equals(mapping.saveString())) {
+				mapping.setKey(mapping.getDefaultKey());
+				fixed = true;
+			}
+		}
+		if (fixed) {
+			options.save();
+		}
+		//?}
 		KeyMapping.resetMapping();
 	}
 

@@ -27,6 +27,9 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import eu.the5zig.mod.event.EventHandler;
 import eu.the5zig.mod.event.TickEvent;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
@@ -38,17 +41,23 @@ public class Scheduler {
 
 	@EventHandler
 	public void onTick(TickEvent event) {
+		List<Task> due = new ArrayList<>();
 		synchronized (jobs) {
-			for (int i = 0; i < jobs.size(); i++) {
-				Task task = jobs.peek();
+			// Count every waiting task down once per tick (this used to look only at the first one).
+			for (Iterator<Task> it = jobs.iterator(); it.hasNext(); ) {
+				Task task = it.next();
 				if (++task.tickCount >= task.delay) {
-					try {
-						((FutureTask) task.listenableFuture).run();
-					} catch (Throwable e) {
-						The5zigMod.logger.error("Could not execute task", e);
-					}
-					jobs.remove(task);
+					it.remove();
+					due.add(task);
 				}
+			}
+		}
+		// Run outside the lock: a task may schedule another one.
+		for (Task task : due) {
+			try {
+				((FutureTask) task.listenableFuture).run();
+			} catch (Throwable e) {
+				The5zigMod.logger.error("Could not execute task", e);
 			}
 		}
 	}

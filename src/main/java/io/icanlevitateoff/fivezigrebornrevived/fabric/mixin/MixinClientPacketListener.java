@@ -47,6 +47,20 @@ public abstract class MixinClientPacketListener {
 	private static final String SAME_THREAD = "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/util/thread/BlockableEventLoop;)V";
 	//?}
 
+	/** A new "join game" packet: the first join, or a proxy (Velocity/BungeeCord) moving you to another server. */
+	@Inject(method = "handleLogin", at = @At("TAIL"))
+	private void the5zig$login(CallbackInfo ci) {
+		if (The5zigMod.hasBeenInitialized()) {
+			// Never let the mod break joining: an exception here makes vanilla drop the connection.
+			try {
+				The5zigMod.getListener().onJoinGame();
+			} catch (Throwable t) {
+				The5zigMod.logger.error("Error while handling the join", t);
+			}
+			io.icanlevitateoff.fivezigrebornrevived.mod.listener.JoinTextListener.onServerSwitch();
+		}
+	}
+
 	@Inject(method = "handleChangeDifficulty", at = @At("TAIL"))
 	private void the5zig$difficulty(ClientboundChangeDifficultyPacket packet, CallbackInfo ci) {
 		if (The5zigMod.hasBeenInitialized()) {

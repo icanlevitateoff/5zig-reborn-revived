@@ -343,6 +343,22 @@ public class Keyboard {
 		KEY_F19 = 308;
 		KEY_LSHIFT = 340;
 		KEY_NUMPADENTER = 335;
+		// Number pad (GLFW_KEY_KP_*). Unset, these were 0, so the timer keys had no key and
+		// GLFW logged "Invalid key 0" whenever Minecraft re-read the key states.
+		KEY_NUMPAD0 = 320;
+		KEY_NUMPAD1 = 321;
+		KEY_NUMPAD2 = 322;
+		KEY_NUMPAD3 = 323;
+		KEY_NUMPAD4 = 324;
+		KEY_NUMPAD5 = 325;
+		KEY_NUMPAD6 = 326;
+		KEY_NUMPAD7 = 327;
+		KEY_NUMPAD8 = 328;
+		KEY_NUMPAD9 = 329;
+		KEY_DECIMAL = 330;
+		KEY_MULTIPLY = 332;
+		KEY_SUBTRACT = 333;
+		KEY_ADD = 334;
 		KEY_LCONTROL = 341;
 		KEY_LMENU = 342;
 		KEY_LMETA = 343;

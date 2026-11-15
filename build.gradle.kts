@@ -97,18 +97,11 @@ base { archivesName.set("5zig-Reborn-Revived") }
 
 repositories {
     mavenCentral()
-    maven("https://jitpack.io") { content { includeGroup("com.github.5zig-reborn") } }
 }
 
 // Libraries Minecraft does not ship. Each one is compiled against and nested in the jar (jar-in-jar).
 val bundled = listOf(
     "org.hsqldb:hsqldb:2.7.4",
-    "com.googlecode.json-simple:json-simple:1.1.1",
-    "com.github.5zig-reborn:DiscordIPC:ac1dbc6c73",
-    // DiscordIPC talks to Discord over a UNIX socket on Linux/macOS through junixsocket.
-    "com.kohlschutter.junixsocket:junixsocket-common:2.0.4",
-    "com.kohlschutter.junixsocket:junixsocket-native-common:2.0.4",
-    "org.scijava:native-lib-loader:2.0.2",
 )
 
 dependencies {
@@ -120,12 +113,7 @@ dependencies {
     modConfig("net.fabricmc:fabric-loader:${prop("deps.fabric_loader")}")
     modConfig("net.fabricmc.fabric-api:fabric-api:${prop("deps.fabric_api")}")
 
-    // Minecraft stopped shipping Apache HttpClient in 26.1; core's Spotify integration still uses it.
-    val bundledHere = if (unobfuscated) bundled + listOf(
-        "org.apache.httpcomponents:httpclient:4.5.14",
-        "org.apache.httpcomponents:httpcore:4.4.16",
-    ) else bundled
-    bundledHere.forEach {
+    bundled.forEach {
         "implementation"(it) { isTransitive = false }
         "include"(it)
     }

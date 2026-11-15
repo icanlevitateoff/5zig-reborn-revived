@@ -33,15 +33,20 @@ public class JoinText implements Row {
 
 	private String server;
 	private String message;
+	/** Old setting in game ticks; still written (rounded) so older versions keep a sensible delay. */
 	private int delay;
+	/** Delay in milliseconds. Missing in files written before it existed: then {@link #delay} (ticks) counts. */
+	private Integer delayMs;
+	/** Wait for the proxy to move you to another server before sending (see JoinTextListener). */
+	private boolean waitForSwitch;
 
 	public JoinText() {
 	}
 
-	public JoinText(String server, String message, int delay) {
+	public JoinText(String server, String message, int delayMs) {
 		setServer(server);
 		this.message = message;
-		this.delay = delay;
+		setDelayMs(delayMs);
 	}
 
 	public String getServer() {
@@ -73,12 +78,22 @@ public class JoinText implements Row {
 		this.message = message;
 	}
 
-	public int getDelay() {
-		return delay;
+	/** The delay after joining, in milliseconds. */
+	public int getDelayMs() {
+		return delayMs != null ? delayMs : delay * 50;
 	}
 
-	public void setDelay(int delay) {
-		this.delay = delay;
+	public void setDelayMs(int delayMs) {
+		this.delayMs = Math.max(0, delayMs);
+		this.delay = (this.delayMs + 49) / 50;
+	}
+
+	public boolean isWaitForSwitch() {
+		return waitForSwitch;
+	}
+
+	public void setWaitForSwitch(boolean waitForSwitch) {
+		this.waitForSwitch = waitForSwitch;
 	}
 
 	@Override
@@ -87,6 +102,9 @@ public class JoinText implements Row {
 		The5zigMod.getVars().drawString(":", x + 102, y + 2);
 
 		The5zigMod.getVars().drawString(The5zigMod.getVars().shortenToWidth(server, 100), x + 115, y + 2);
+		if (waitForSwitch) {
+			The5zigMod.getVars().drawString("\u21aa", x + 218, y + 2, 0xAAAAAA);
+		}
 	}
 
 	@Override

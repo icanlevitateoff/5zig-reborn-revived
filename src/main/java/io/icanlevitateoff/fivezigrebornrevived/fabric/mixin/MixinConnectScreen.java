@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Remembers the server being joined, for auto-reconnect. */
+/** Remembers the server being joined, for auto-reconnect, and marks a new connection for join texts. */
 @Mixin(ConnectScreen.class)
 public abstract class MixinConnectScreen {
 
@@ -45,6 +45,7 @@ public abstract class MixinConnectScreen {
 		if (!The5zigMod.hasBeenInitialized()) {
 			return;
 		}
+		io.icanlevitateoff.fivezigrebornrevived.mod.listener.JoinTextListener.onNewConnection();
 		String host = address.getHost();
 		boolean fiveZig = "5zig.eu".equalsIgnoreCase(host) || "5zig.net".equalsIgnoreCase(host);
 		MinecraftFactory.getClassProxyCallback().setAutoreconnectServerData(fiveZig ? null : data);
