@@ -1,0 +1,37 @@
+name: Feature Request
+description: Suggest a new feature, or an original 5zig feature that should come back.
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: Describe the feature and how you'd use it.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Why?
+      description: What problem does it solve, or what is annoying without it?
+  - type: dropdown
+    id: original
+    attributes:
+      label: Was this in the original 5zig mod?
+      options:
+        - "No, it's new"
+        - "Yes, it existed in The 5zig Mod / 5zig Reborn"
+        - "Not sure"
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Minecraft version(s) you play on
+      placeholder: e.g. 1.21.8
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots, mockups, links to similar mods.
