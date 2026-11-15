@@ -19,54 +19,116 @@
 
 package io.icanlevitateoff.fivezigrebornrevived.mod.util;
 
-import eu.the5zig.mod.util.*;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import eu.the5zig.util.minecraft.ChatColor;
 import io.icanlevitateoff.fivezigrebornrevived.mod.I18n;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import io.icanlevitateoff.fivezigrebornrevived.mod.Version;
-import eu.the5zig.util.minecraft.ChatColor;
-import org.apache.commons.io.IOUtils;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
+/**
+ * Checks the GitHub releases of 5zig Reborn Revived. The mod version is the part after "-v" in
+ * {@link Version#VERSION} ("1.21.8-v0.1.2" -> 0.1.2, "1.21.8" being the Minecraft version the jar
+ * was built for). An update is only reported when a newer release has a jar for that same build.
+ */
 public class Updater implements Runnable {
+
+    public static final String RELEASES_PAGE = "https://github.com/icanlevitateoff/5zig-reborn-revived/releases";
+    private static final String RELEASES_API = "https://api.github.com/repos/icanlevitateoff/5zig-reborn-revived/releases?per_page=30";
 
     private Updater() {
     }
 
     public static void check() {
-        new Thread(new Updater(), "Update Thread").start();
+        Thread thread = new Thread(new Updater(), "5zig Update Check");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @Override
     public void run() {
+        int split = Version.VERSION.lastIndexOf("-v");
+        if (split <= 0) {
+            The5zigMod.logger.info("Not checking for updates (development build " + Version.VERSION + ").");
+            return;
+        }
+        String build = Version.VERSION.substring(0, split);
+        String current = Version.VERSION.substring(split + 2);
         try {
-            URL url = new URL((The5zigMod.DEBUG ? "http://localhost:8080" : "https://secure.5zigreborn.eu") + "/version?mc=" + Version.MCVERSION + "&new=1");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.addRequestProperty("User-Agent", "5zig/" + Version.VERSION);
-            Download download = The5zigMod.gson.fromJson(IOUtils.toString(connection.getInputStream()), Download.class);
-            connection.disconnect();
-            if (!"DEV".equals(Version.VERSION) && !Version.VERSION.contains("_b") && !Version.VERSION.equals(download.latest)) {
+            String latest = null;
+            for (JsonElement element : fetchReleases()) {
+                JsonObject release = element.getAsJsonObject();
+                if (release.get("draft").getAsBoolean() || !release.has("tag_name")) {
+                    continue;
+                }
+                String tag = release.get("tag_name").getAsString();
+                String version = tag.startsWith("v") ? tag.substring(1) : tag;
+                if (!version.matches("\\d+(\\.\\d+)*") || !hasJarFor(release, build, version)) {
+                    continue;
+                }
+                if (latest == null || compare(version, latest) > 0) {
+                    latest = version;
+                }
+            }
+            if (latest != null && compare(latest, current) > 0) {
                 Version.UPDATE = "stable";
-                The5zigMod.logger.info("Found new update of The 5zig Mod (v" + download.latest + ")!");
+                The5zigMod.logger.info("5zig Reborn Revived " + latest + " is available (running " + current + "): " + RELEASES_PAGE);
                 The5zigMod.getOverlayMessage().displayMessageAndSplit(ChatColor.YELLOW + I18n.translate("update.1"));
                 The5zigMod.getOverlayMessage().displayMessageAndSplit(ChatColor.YELLOW + I18n.translate("update.2"));
             } else {
-                The5zigMod.logger.info("The 5zig Mod is up to date!");
+                The5zigMod.logger.info("5zig Reborn Revived is up to date (" + current + ").");
             }
         } catch (Exception e) {
-            The5zigMod.logger.error("Could not check for latest 5zig Mod Version!", e);
+            The5zigMod.logger.warn("Could not check for updates: " + e);
         }
     }
 
-    private static class Download {
-        public String latest;
+    private static JsonArray fetchReleases() throws Exception {
+        HttpURLConnection connection = (HttpURLConnection) new URL(RELEASES_API).openConnection();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(10000);
+        connection.addRequestProperty("Accept", "application/vnd.github+json");
+        connection.addRequestProperty("User-Agent", "5zig-Reborn-Revived/" + Version.VERSION);
+        try (Reader reader = new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8)) {
+            return JsonParser.parseReader(reader).getAsJsonArray();
+        } finally {
+            connection.disconnect();
+        }
     }
 
-    private static class BetaUpdate {
-        public boolean update;
-        public boolean beta;
+    /** True if the release has the jar for this Minecraft build, e.g. 5zig-Reborn-Revived-1.21.8-v0.1.3.jar. */
+    private static boolean hasJarFor(JsonObject release, String build, String version) {
+        String expected = "5zig-Reborn-Revived-" + build + "-v" + version + ".jar";
+        if (!release.has("assets")) {
+            return false;
+        }
+        for (JsonElement asset : release.getAsJsonArray("assets")) {
+            if (expected.equals(asset.getAsJsonObject().get("name").getAsString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Numeric comparison of dotted versions: 0.1.10 > 0.1.9, 0.2 > 0.1.9. */
+    static int compare(String a, String b) {
+        String[] x = a.split("\\."), y = b.split("\\.");
+        for (int i = 0; i < Math.max(x.length, y.length); i++) {
+            int p = i < x.length ? Integer.parseInt(x[i]) : 0;
+            int q = i < y.length ? Integer.parseInt(y[i]) : 0;
+            if (p != q) {
+                return Integer.compare(p, q);
+            }
+        }
+        return 0;
     }
 
     public enum UpdateType {
