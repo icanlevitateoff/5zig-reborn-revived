@@ -175,19 +175,33 @@ public class FiveZigClient implements ClientModInitializer {
 			if (!ready()) {
 				return;
 			}
+			// Fabric also runs this after a window resize, which (since 1.21) need not rebuild the
+			// screen's widgets: drop whatever we added last time before adding again.
+			Screens.getButtons(screen).removeIf(OURS::contains);
+			Object token = new Object();
+			LAYOUT_TOKEN.put(screen, token);
+			boolean firstInit = SEEN.add(screen);
 			if (screen instanceof TitleScreen) {
 				addLastServerButton(screen, width);
-				ScreenEvents.afterRender(screen).register((s, g, mouseX, mouseY, delta) ->
-						RenderContext.with(g, () -> MinecraftFactory.getVars().drawString(Version.getVersionDisplay(), 2, 2)));
+				ScreenEvents.afterRender(screen).register((s, g, mouseX, mouseY, delta) -> {
+					if (LAYOUT_TOKEN.get(s) == token) {
+						RenderContext.with(g, () -> MinecraftFactory.getVars().drawString(Version.getVersionDisplay(), 2, 2));
+					}
+				});
 			} else if (screen instanceof OptionsScreen) {
 				addSettingsButton(screen);
 			} else if (screen instanceof PauseScreen) {
 				addDisconnectConfirmation(screen);
 			} else if (screen instanceof DisconnectedScreen disconnected) {
-				The5zigMod.getDataManager().getAutoReconnectManager().startCountdown(((DisconnectedScreenAccessor) disconnected).the5zig$getParent());
-				ScreenEvents.afterRender(screen).register((s, g, mouseX, mouseY, delta) ->
-						RenderContext.with(g, () -> MinecraftFactory.getClassProxyCallback().checkAutoreconnectCountdown(s.width, s.height)));
-			} else if (screen instanceof DeathScreen) {
+				if (firstInit) {
+					The5zigMod.getDataManager().getAutoReconnectManager().startCountdown(((DisconnectedScreenAccessor) disconnected).the5zig$getParent());
+				}
+				ScreenEvents.afterRender(screen).register((s, g, mouseX, mouseY, delta) -> {
+					if (LAYOUT_TOKEN.get(s) == token) {
+						RenderContext.with(g, () -> MinecraftFactory.getClassProxyCallback().checkAutoreconnectCountdown(s.width, s.height));
+					}
+				});
+			} else if (screen instanceof DeathScreen && firstInit) {
 				BytecodeHook.onGuiGameOverInit();
 			}
 		});
@@ -201,9 +215,31 @@ public class FiveZigClient implements ClientModInitializer {
 	private static void addSettingsButton(Screen screen) {
 		Button button = Button.builder(Component.literal(MinecraftFactory.getClassProxyCallback().translate("menu.the5zigMod")),
 				b -> MinecraftFactory.getVars().displayScreen(new GuiSettings(null, "main"))).bounds(0, 0, 150, 20).build();
-		Screens.getButtons(screen).add(button);
-		placeSettingsButton(screen, button);
-		ScreenEvents.beforeRender(screen).register((s, g, mouseX, mouseY, delta) -> placeSettingsButton(s, button));
+		addOurs(screen, button);
+		followLayout(screen, () -> placeSettingsButton(screen, button));
+	}
+
+	/** Widgets 5zig added to vanilla screens (weak: they die with their screen). */
+	private static final java.util.Set<AbstractWidget> OURS = java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+	/** Screens already initialised once (one-off actions must not repeat on resize). */
+	private static final java.util.Set<Screen> SEEN = java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+	/** Latest AFTER_INIT run per screen; layout callbacks from older runs do nothing. */
+	private static final java.util.Map<Screen, Object> LAYOUT_TOKEN = new java.util.WeakHashMap<>();
+
+	private static void addOurs(Screen screen, AbstractWidget widget) {
+		OURS.add(widget);
+		Screens.getButtons(screen).add(widget);
+	}
+
+	/** Runs now and before every frame, so our widgets follow vanilla's layout after resizes. */
+	private static void followLayout(Screen screen, Runnable place) {
+		place.run();
+		Object token = LAYOUT_TOKEN.get(screen);
+		ScreenEvents.beforeRender(screen).register((s, g, mouseX, mouseY, delta) -> {
+			if (LAYOUT_TOKEN.get(s) == token) {
+				place.run();
+			}
+		});
 	}
 
 	private static void placeSettingsButton(Screen screen, Button button) {
@@ -260,7 +296,11 @@ public class FiveZigClient implements ClientModInitializer {
 			}
 		}).bounds(multiplayer.getX() + 102, multiplayer.getY(), 98, 20).build();
 		lastServer.active = server != null;
-		buttons.add(lastServer);
+		addOurs(screen, lastServer);
+		followLayout(screen, () -> {
+			multiplayer.setWidth(98);
+			lastServer.setPosition(multiplayer.getX() + 102, multiplayer.getY());
+		});
 	}
 
 	private static void addDisconnectConfirmation(Screen screen) {
@@ -289,8 +329,13 @@ public class FiveZigClient implements ClientModInitializer {
 						return io.icanlevitateoff.fivezigrebornrevived.mod.I18n.translate("confirm_disconnect.title");
 					}
 				}))).bounds(original.getX(), original.getY(), original.getWidth(), original.getHeight()).build();
-				buttons.remove(i);
-				buttons.add(confirm);
+				// Keep the original in the layout (hidden) so the confirm button can follow it.
+				original.visible = false;
+				addOurs(screen, confirm);
+				followLayout(screen, () -> {
+					confirm.setPosition(original.getX(), original.getY());
+					confirm.setWidth(original.getWidth());
+				});
 				return;
 			}
 		}
