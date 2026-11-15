@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.exceptions.AuthenticationException;
+import io.icanlevitateoff.fivezigrebornrevived.mod.I18n;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import eu.the5zig.mod.event.AccountSwitchEvent;
 
@@ -89,7 +90,19 @@ public class AccountManager {
         applyMicrosoft(account, result);
     }
 
+    /**
+     * Offline accounts may only be added once the manager holds a Microsoft account (one that
+     * owns Minecraft, since adding it checked the profile).
+     */
+    public boolean hasAuthenticatedAccount() {
+        return accounts != null && accounts.stream().anyMatch(a -> a.isMicrosoft() && a.getRefreshToken() != null);
+    }
+
     public void addOfflineAccount(String username) {
+        if (!hasAuthenticatedAccount()) {
+            The5zigMod.getOverlayMessage().displayMessageAndSplit(I18n.translate("account_manager.offline_requires_microsoft"));
+            return;
+        }
         Account account = new Account(null, null, username, username, "legacy");
         accounts.add(account);
 

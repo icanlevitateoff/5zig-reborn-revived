@@ -190,6 +190,8 @@ public class FiveZigClient implements ClientModInitializer {
 				});
 			} else if (screen instanceof OptionsScreen) {
 				addSettingsButton(screen);
+			} else if (screen instanceof net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen) {
+				addAccountsButton(screen);
 			} else if (screen instanceof PauseScreen) {
 				addDisconnectConfirmation(screen);
 			} else if (screen instanceof DisconnectedScreen disconnected) {
@@ -240,6 +242,15 @@ public class FiveZigClient implements ClientModInitializer {
 				place.run();
 			}
 		});
+	}
+
+	/** "Accounts..." in the top-right corner of the multiplayer screen opens the 5zig account manager. */
+	private static void addAccountsButton(Screen screen) {
+		Button button = Button.builder(Component.literal(MinecraftFactory.getClassProxyCallback().translate("account_manager.button")),
+				b -> MinecraftFactory.getVars().displayScreen(new io.icanlevitateoff.fivezigrebornrevived.mod.gui.GuiAccountManager(
+						MinecraftFactory.getVars().createWrappedGui(screen)))).bounds(0, 5, 100, 20).build();
+		addOurs(screen, button);
+		followLayout(screen, () -> button.setX(screen.width - button.getWidth() - 5));
 	}
 
 	private static void placeSettingsButton(Screen screen, Button button) {

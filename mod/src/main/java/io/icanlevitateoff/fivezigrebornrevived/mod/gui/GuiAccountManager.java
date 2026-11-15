@@ -81,7 +81,9 @@ public class GuiAccountManager extends Gui implements Clickable<Account> {
 
         int x = getWidth() / 2 - 190;
         addButton(The5zigMod.getVars().createButton(5, x, getHeight() - 27, 74, 20, I18n.translate("account_manager.add_microsoft")));
-        addButton(The5zigMod.getVars().createButton(1, x + 76, getHeight() - 27, 74, 20, I18n.translate("account_manager.add_offline")));
+        IButton offline = The5zigMod.getVars().createButton(1, x + 76, getHeight() - 27, 74, 20, I18n.translate("account_manager.add_offline"));
+        offline.setEnabled(The5zigMod.getAccountManager().hasAuthenticatedAccount());
+        addButton(offline);
         addButton(The5zigMod.getVars().createButton(2, x + 152, getHeight() - 27, 74, 20, I18n.translate("account_manager.remove")));
         addButton(The5zigMod.getVars().createButton(3, x + 228, getHeight() - 27, 74, 20, I18n.translate("account_manager.edit_btn")));
         addButton(The5zigMod.getVars().createButton(4, x + 304, getHeight() - 27, 76, 20, I18n.translate("account_manager.change_password")));
@@ -96,7 +98,11 @@ public class GuiAccountManager extends Gui implements Clickable<Account> {
             }
             The5zigMod.getVars().displayScreen(new GuiMicrosoftLogin(this));
         }
-        else if(button.getId() == 1) { // Add offline
+        else if(button.getId() == 1) { // Add offline (only once a Microsoft account is present)
+            if (!The5zigMod.getAccountManager().hasAuthenticatedAccount()) {
+                The5zigMod.getOverlayMessage().displayMessageAndSplit(I18n.translate("account_manager.offline_requires_microsoft"));
+                return;
+            }
             The5zigMod.getVars().displayScreen(new GuiAccount(this));
         }
         else if(button.getId() == 2) { // Remove
