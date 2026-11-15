@@ -1,3 +1,18 @@
+# 5zig Reborn Revived
+a really stupid vibecoded port of 5zig reborn to modern versions of minecraft
+
+A Fabric revival of The 5zig Mod by IcanLevitate, for Minecraft 1.20.1, 1.20.4, 1.21.1, 1.21.3–1.21.10 and 26.3.
+Based on [The 5zig Mod](https://github.com/5zig-reborn/The-5zig-Mod) by 5zig and the 5zig Reborn team (RoccoDev, zortax and contributors), GPLv3.
+
+## Building
+```
+./gradlew build
+```
+Needs only a JDK to start Gradle; the build provisions Java 17/21/25 per Minecraft version itself.
+Jars land in `versions/<minecraft version>/build/libs/5zig-Reborn-Revived-<minecraft version>-v<version>.jar`.
+`./gradlew :1.21.8:runClient` starts a dev client (muted, offline user `5ZRRDEVTEST`).
+See [FABRIC_PORT_NOTES.md](FABRIC_PORT_NOTES.md) for how the multi-version setup works.
+
 # The 5zig Mod
 [![Build Status](https://travis-ci.org/5zig-reborn/The-5zig-Mod.svg?branch=master)](https://travis-ci.org/5zig-reborn/The-5zig-Mod)
 [![GitHub All Releases](https://img.shields.io/github/downloads/5zig-reborn/The-5zig-Mod/total.svg)](https://github.com/5zig-reborn/The-5zig-Mod/releases/latest)
@@ -7,23 +22,7 @@
 [![Subreddit subscribers](https://img.shields.io/reddit/subreddit-subscribers/5zig?label=%2Fr%2F5zig)](https://reddit.com/r/5zig)
 [![Patreon](https://badgen.net/badge/support%20on/patreon?icon=patreon&color=orange)](https://patreon.com/5zig)
 
-This repository contains the core of The 5zig Mod.  
-Given the nature of the project, this repository must only contain **version-independent** code.
-
-Version-exclusive code should be stored inside the [version-support](https://github.com/5zig-reborn/version-support) repo.
-
-# Building
-First, clone the repository:
-```
-git clone --recursive https://github.com/5zig-reborn/The-5zig-Mod
-```
-Then, build using Gradle:
-```
-./gradlew build
-```
-
-You can find the resulting artifacts in the `version-specific/VERSION/build/libs` folder,
-where `VERSION` is the version you desire.
+The original project README follows.
 
 # License
 This new version of the mod is licensed under **GPLv3**.  

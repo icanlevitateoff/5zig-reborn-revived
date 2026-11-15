@@ -17,3 +17,6 @@ out/
 .gradle
 .idea
 **/*.iml
+/run
+**/build
+.kotlin

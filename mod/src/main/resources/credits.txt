@@ -1,4 +1,5 @@
 # The 5zig Mod - Credits
+revived: IcanLevitate
 reborn: RoccoDev, zortax
 developer: 5zig
 special_thanks: 5zig, Oreon, Niki, TheLeftover, pizzachief, Kico, Gerrygames

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "fivezigrebornrevived",
+  "version": "${version}",
+  "name": "5zig Reborn Revived",
+  "description": "Fabric revival of The 5zig Mod (5zig / 5zig Reborn): HUD modules, friends & chat, server stats and more.",
+  "authors": [
+    "5zig",
+    "RoccoDev",
+    "zortax",
+    "IcanLevitate"
+  ],
+  "contact": {
+    "sources": "https://github.com/5zig-reborn/The-5zig-Mod"
+  },
+  "license": "GPL-3.0-or-later",
+  "icon": "images/5zig-icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.icanlevitateoff.fivezigrebornrevived.fabric.FiveZigClient"
+    ]
+  },
+  "mixins": [
+    "fivezigrebornrevived.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "fabric-api": "*",
+    "minecraft": "${minecraft}",
+    "java": ">=${java}"
+  }
+}

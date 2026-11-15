@@ -1,0 +1,30 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.icanlevitateoff.fivezigrebornrevived.fabric.mixin",
+  "compatibilityLevel": "${mixin_java}",
+  "client": [
+    "ChatScreenAccessor",
+    "DisconnectedScreenAccessor",
+    "KeyMappingAccessor",
+    "MinecraftAccessor",
+    "MixinAbstractClientPlayer",
+    "MixinChatComponent",
+    "MixinChatScreen",
+    "MixinClientPacketListener",
+    "MixinConnectScreen",
+    "MixinConnection",
+    "MixinGui",
+    "MixinGuiMessageLine",
+    "MixinKeyboardHandler",
+    "MixinLivingEntityRenderer",
+    "MixinMinecraft",
+    "MixinPlayerTabOverlay",
+    "MixinScreen",
+    "MixinServerListEntry",
+    "OptionsAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

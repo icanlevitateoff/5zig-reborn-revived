@@ -1,0 +1,17 @@
+# cond|regex|replacement   (applied in order when cond holds; mirror in stonecutter.gradle.kts)
+>=26|\bResourceLocation\b|Identifier
+>=26|\bnet\.minecraft\.Util\b|net.minecraft.util.Util
+>=26|\bnet\.minecraft\.client\.GuiMessageTag\b|net.minecraft.client.multiplayer.chat.GuiMessageTag
+>=26|\bGuiGraphics\b|GuiGraphicsExtractor
+>=26|\bVanillaHudElements\.STATUS_EFFECTS\b|VanillaHudElements.MOB_EFFECTS
+>=26|\bvanilla\.render\(g, delta\)|vanilla.extractRenderState(g, delta)
+>=26|\bScreenEvents\.afterRender\b|ScreenEvents.afterExtract
+>=26|\bScreens\.getButtons\b|Screens.getWidgets
+>=26|\bclient\.keybinding\.v1\b|client.keymapping.v1
+>=26|\bKeyBindingHelper\b|KeyMappingHelper
+>=26|\bPayloadTypeRegistry\.playC2S\(\)|PayloadTypeRegistry.serverboundPlay()
+>=26|\bPayloadTypeRegistry\.playS2C\(\)|PayloadTypeRegistry.clientboundPlay()
+>=26|\bInputConstants\.Type\.KEYSYM\b|InputConstants.Type.KEYBOARD
+>=26|"renderPingIcon"|"extractPingIcon"
+>=26|@Inject\(method = "renderBackground"|@Inject(method = "extractBackground"
+>=26|\bnet\.minecraft\.client\.GuiMessage\b|net.minecraft.client.multiplayer.chat.GuiMessage
