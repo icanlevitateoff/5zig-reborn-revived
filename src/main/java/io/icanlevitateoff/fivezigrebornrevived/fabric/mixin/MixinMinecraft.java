@@ -51,6 +51,12 @@ public abstract class MixinMinecraft {
 		category.setDetail("Initialized", The5zigMod.hasBeenInitialized());
 	}
 
+	/** Marks a real client crash, so only its crash report is uploaded (see MixinCrashReport). */
+	@Inject(method = "crash", at = @At("HEAD"))
+	private static void the5zig$onCrash(CallbackInfo ci) {
+		io.icanlevitateoff.fivezigrebornrevived.mod.crashreport.CrashReportUploader.onClientCrash();
+	}
+
 	@Inject(method = "startAttack", at = @At("HEAD"))
 	private void the5zig$onLeftClick(CallbackInfoReturnable<Boolean> cir) {
 		if (The5zigMod.hasBeenInitialized()) {

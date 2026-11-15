@@ -48,7 +48,6 @@ public class EventListener {
 	private String previousTitle;
 	private String previousSubTitle;
 
-	private EasterListener easterListener = new EasterListener();
 
 	public EventListener() {
 		registerListener(new ServerAPIListener());
@@ -64,7 +63,6 @@ public class EventListener {
 		registerListener(new ZoomListener());
 		registerListener(new ChatUsernameListener());
 		registerListener(new JoinTextListener());
-		registerListener(easterListener);
 	}
 
 	public void registerListener(Object listener) {
@@ -153,7 +151,6 @@ public class EventListener {
 
 	public void onRenderOverlay() {
 		The5zigMod.getVars().renderOverlay();
-		easterListener.getEasterRenderer().render();
 	}
 
 	private boolean hadNetworkManager = false;
@@ -226,19 +223,9 @@ public class EventListener {
 		if ("MC|Brand".equals(channel) || "minecraft:brand".equals(channel)) {
 			if (The5zigMod.getDataManager().getServer() == null) {
 				if (The5zigMod.getVars().getServer() != null) {
-					String ip = The5zigMod.getVars().getServer();
-					String host = ip;
-					int port = 25565;
-					if (host.contains(":")) {
-						String[] split = ip.split(":");
-						host = split[0];
-						try {
-							port = split.length == 1 ? 25565 : Integer.parseInt(split[1]);
-						} catch (NumberFormatException ignored) {
-							port = 25565;
-						}
-					}
-					onServerConnect(host, port);
+					io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address =
+							io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(The5zigMod.getVars().getServer());
+					onServerConnect(address.host, address.port);
 				}
 			}
 		}

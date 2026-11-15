@@ -10,3 +10,6 @@ the5zigmod.key.teamspeak=TeamSpeak
 the5zigmod.key.username_history=Username History
 the5zigmod.key.toggle_chat_filter=Toggle Chat Filter
 the5zigmod.key.change_account=Change account
+the5zigmod.key.media.play_pause=Media Play/Pause
+the5zigmod.key.media.next=Media Next Track
+the5zigmod.key.media.previous=Media Previous Track

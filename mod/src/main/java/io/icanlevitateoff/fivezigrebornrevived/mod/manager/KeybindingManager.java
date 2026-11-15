@@ -54,6 +54,9 @@ public class KeybindingManager {
 	public final IKeybinding nameHistory;
 	public final IKeybinding toggleChatFilter;
 	public final IKeybinding changeAccount;
+	public final IKeybinding mediaPlayPause;
+	public final IKeybinding mediaNext;
+	public final IKeybinding mediaPrevious;
 
 	private final Map<RegisteredKeybinding, Class[]> globalKeybindings = Maps.newHashMap();
 	private final List<IWrappedTextfield> initializedTextfields = Lists.newArrayList();
@@ -74,6 +77,9 @@ public class KeybindingManager {
 		nameHistory = registerKeybinding("the5zigmod.key.username_history", Keyboard.KEY_NONE, GuiNameHistory.class);
 		toggleChatFilter = registerKeybinding("the5zigmod.key.toggle_chat_filter", Keyboard.KEY_NONE);
 		changeAccount = registerKeybinding("the5zigmod.key.change_account", Keyboard.KEY_NONE, GuiAccountManager.class);
+		mediaPlayPause = registerKeybinding("the5zigmod.key.media.play_pause", Keyboard.KEY_NONE);
+		mediaNext = registerKeybinding("the5zigmod.key.media.next", Keyboard.KEY_NONE);
+		mediaPrevious = registerKeybinding("the5zigmod.key.media.previous", Keyboard.KEY_NONE);
 	}
 
 	private IKeybinding registerKeybinding(String description, int keyCode, Class... guiToOpen) {

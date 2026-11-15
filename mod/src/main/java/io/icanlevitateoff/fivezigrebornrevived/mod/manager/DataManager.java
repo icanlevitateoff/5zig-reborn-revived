@@ -40,7 +40,7 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.manager.einslive.EinsLiveMana
 import io.icanlevitateoff.fivezigrebornrevived.mod.manager.iloveradio.ILoveRadioManager;
 import io.icanlevitateoff.fivezigrebornrevived.mod.manager.itunes.ITunesManager;
 import io.icanlevitateoff.fivezigrebornrevived.mod.manager.keyboard.KeyboardManager;
-import io.icanlevitateoff.fivezigrebornrevived.mod.manager.spotify.SpotifyManager;
+import io.icanlevitateoff.fivezigrebornrevived.mod.manager.media.MediaManager;
 import io.icanlevitateoff.fivezigrebornrevived.mod.render.BracketsFormatting;
 import io.icanlevitateoff.fivezigrebornrevived.mod.render.SnowRenderer;
 import io.icanlevitateoff.fivezigrebornrevived.mod.server.GameServer;
@@ -101,7 +101,7 @@ public class DataManager {
 
 	private final ServerInstanceRegistry serverInstanceRegistry = new ServerInstanceRegistry();
 
-	private final SpotifyManager spotifyManager = new SpotifyManager();
+	private final MediaManager mediaManager = new MediaManager();
 	private final ILoveRadioManager iLoveRadioManager = new ILoveRadioManager();
 	private final EinsLiveManager einsLiveManager = new EinsLiveManager();
 	private final ITunesManager iTunesManager = new ITunesManager();
@@ -281,8 +281,8 @@ public class DataManager {
 		}
 	}
 
-	public SpotifyManager getSpotifyManager() {
-		return spotifyManager;
+	public MediaManager getMediaManager() {
+		return mediaManager;
 	}
 
 	public ILoveRadioManager getiLoveRadioManager() {

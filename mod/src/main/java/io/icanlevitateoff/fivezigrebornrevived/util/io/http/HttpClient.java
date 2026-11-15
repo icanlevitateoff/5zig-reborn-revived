@@ -21,13 +21,9 @@ package io.icanlevitateoff.fivezigrebornrevived.util.io.http;
 
 import com.google.common.base.Preconditions;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
@@ -42,14 +38,14 @@ public class HttpClient {
 	public static final int TIMEOUT = 5000;
 	private static final String USER_AGENT = "5zig-Reborn";
 
-	private static volatile java.net.http.HttpClient client, insecureClient;
+	private static volatile java.net.http.HttpClient client;
 
 	/** @param executor kept for source compatibility with the old netty signature; may be null. */
 	public static void get(String url, Executor executor, HttpResponseCallback callback) {
-		get(url, Collections.emptyMap(), TIMEOUT, false, callback);
+		get(url, Collections.emptyMap(), TIMEOUT, callback);
 	}
 
-	public static void get(String url, Map<String, String> headers, int timeout, boolean ignoreInvalidCertificates, HttpResponseCallback callback) {
+	public static void get(String url, Map<String, String> headers, int timeout, HttpResponseCallback callback) {
 		Preconditions.checkNotNull(url, "url");
 		Preconditions.checkNotNull(callback, "callback");
 		HttpRequest.Builder request;
@@ -63,7 +59,7 @@ public class HttpClient {
 			callback.call(null, -1, e);
 			return;
 		}
-		client(ignoreInvalidCertificates).sendAsync(request.build(), HttpResponse.BodyHandlers.ofString())
+		client().sendAsync(request.build(), HttpResponse.BodyHandlers.ofString())
 				.whenComplete((response, error) -> {
 					if (error != null) {
 						callback.call(null, -1, error);
@@ -73,27 +69,11 @@ public class HttpClient {
 				});
 	}
 
-	private static java.net.http.HttpClient client(boolean insecure) {
-		if (!insecure) {
-			if (client == null) {
-				client = java.net.http.HttpClient.newBuilder().connectTimeout(Duration.ofMillis(TIMEOUT))
-						.followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build();
-			}
-			return client;
+	private static java.net.http.HttpClient client() {
+		if (client == null) {
+			client = java.net.http.HttpClient.newBuilder().connectTimeout(Duration.ofMillis(TIMEOUT))
+					.followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build();
 		}
-		if (insecureClient == null) {
-			try {
-				SSLContext ctx = SSLContext.getInstance("TLS");
-				ctx.init(null, new TrustManager[]{new X509TrustManager() {
-					public void checkClientTrusted(X509Certificate[] c, String a) {}
-					public void checkServerTrusted(X509Certificate[] c, String a) {}
-					public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
-				}}, null);
-				insecureClient = java.net.http.HttpClient.newBuilder().sslContext(ctx).connectTimeout(Duration.ofMillis(TIMEOUT)).build();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return insecureClient;
+		return client;
 	}
 }

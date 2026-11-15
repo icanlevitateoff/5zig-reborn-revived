@@ -182,14 +182,9 @@ public class AccountManager {
         The5zigMod.getNetworkManager().reloadNow();
         The5zigMod.getListener().fireEvent(new AccountSwitchEvent());
         if(The5zigMod.getVars().getServer() != null) {
-            String host = The5zigMod.getVars().getServer();
-            int port = 25565;
-            if(host.contains(":")) {
-                String[] data = host.split(":");
-                host = data[0];
-                port = Integer.parseInt(data[1]);
-            }
-            The5zigMod.getVars().joinServer(host, port);
+            io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address =
+                    io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(The5zigMod.getVars().getServer());
+            The5zigMod.getVars().joinServer(address.host, address.port);
         }
     }
 
@@ -209,6 +204,9 @@ public class AccountManager {
             return false;
         }).findAny();
         self.ifPresent(account -> account.setSelected(true));
+        if (AccountsFileEncryption.needsUpgrade()) {
+            save(); // rewrite in the current, stronger format
+        }
     }
 
     private void create() throws Exception {

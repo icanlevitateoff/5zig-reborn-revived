@@ -185,7 +185,7 @@ public class ModuleItemRegistry {
 		registerItem("TIMER", Timer.class, Category.SYSTEM);
 		registerItem("MEMORY", Memory.class, Category.SYSTEM);
 		registerItem("BATTERY", Battery.class, Category.SYSTEM);
-		registerItem("SPOTIFY", Spotify.class, Category.SYSTEM);
+		registerItem("SPOTIFY", NowPlaying.class, Category.SYSTEM);
 		registerItem("ITUNES", ITunes.class, Category.SYSTEM);
 		registerItem("ILOVERADIO", ILoveRadio.class, Category.SYSTEM);
 		registerItem("EINSLIVE", EinsLive.class, Category.SYSTEM);

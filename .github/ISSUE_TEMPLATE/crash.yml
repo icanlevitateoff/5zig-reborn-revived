@@ -7,6 +7,7 @@ body:
     attributes:
       value: |
         Please attach the crash report: it is in `.minecraft/crash-reports/` and usually contains a **5zig Reborn Revived** section.
+        If "Upload Crash Reports" is on (the default), the mod uploads it to mclo.gs and shows and copies the link the next time you start the game; the link is also at the end of the crash report. Pasting that link is enough.
         If the game closed without a crash report, attach `.minecraft/logs/latest.log` instead.
   - type: dropdown
     id: mc-version
@@ -35,7 +36,7 @@ body:
     id: mod-version
     attributes:
       label: Mod version
-      placeholder: 1.21.8-v0.1.2
+      placeholder: 1.21.8-v0.3.0
     validations:
       required: true
   - type: input
@@ -69,7 +70,7 @@ body:
     id: crash-report
     attributes:
       label: Crash report
-      description: Paste the whole crash report here, or drag the file into this box.
+      description: Paste the mclo.gs link or the whole crash report here, or drag the file into this box.
       render: text
     validations:
       required: true

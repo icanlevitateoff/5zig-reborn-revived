@@ -602,29 +602,8 @@ public class ConfigNew {
 
 		// [REBORN] New config start
 
-		add(new BoolItem("plugin_update", null, true));
 		add(new BoolItem("pingOnTab", "display", false));
 
-		add(new DisplayCategoryItem("spotify", "display", "spotify"));
-		add(new StringItem("refresh_token", "spotify", "") {
-			@Override
-			public String translateValue() {
-				return I18n.translate(get().isEmpty() ? "spotify.token.not_set" : "spotify.token.set");
-			}
-
-			@Override
-			public int getMaxLength() {
-				return 500;
-			}
-
-			@Override
-			public void action() {
-				String pair = get();
-				if(!pair.contains("/")) return;
-				The5zigMod.getDataManager().getSpotifyManager().setTokens(pair);
-			}
-		});
-		add(new StringItem("spotify_auth_token", null, ""));
 
 		add(new StringItem("hypixel_api_key", "server_hypixel", "") {
 			@Override

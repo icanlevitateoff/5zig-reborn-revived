@@ -35,7 +35,7 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.chat.party.PartyManager;
 import io.icanlevitateoff.fivezigrebornrevived.mod.config.*;
 import eu.the5zig.mod.config.*;
 import io.icanlevitateoff.fivezigrebornrevived.mod.config.items.IntItem;
-import io.icanlevitateoff.fivezigrebornrevived.mod.crashreport.CrashHopper;
+import io.icanlevitateoff.fivezigrebornrevived.mod.crashreport.CrashReportUploader;
 import io.icanlevitateoff.fivezigrebornrevived.mod.discord.DiscordRPCManager;
 import eu.the5zig.mod.gui.IOverlay;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.ts.GuiTeamSpeak;
@@ -192,9 +192,6 @@ public class The5zigMod {
 		// Workaround to allow Minecraft specific classes the interaction with mod core classes.
 		MinecraftFactory.setClassProxyCallback(new ClassProxyCallbackImpl());
 
-		// Initialize Crash Hopper
-		CrashHopper.init();
-
 		// Directories and config
 		try {
 			setupDirs();
@@ -202,6 +199,8 @@ public class The5zigMod {
 			logger.fatal("Could not create Mod directories! Exiting!", e);
 			CrashReportUtil.makeCrashReport(e, "Creating Directory.");
 		}
+		// Left behind by older versions, which ran it to send crash reports to 5zig.net.
+		new File(modDirectory, "crash-hopper.jar").delete();
 
 		try {
 			loadConfig();
@@ -250,6 +249,7 @@ public class The5zigMod {
 		moduleMaster.loadInitial();
 
 		Updater.check();
+		CrashReportUploader.announcePrevious();
 
 		discordRPCManager = new DiscordRPCManager();
 		try {

@@ -60,6 +60,12 @@ Versioning: `<mc>-v<mod.version>`, e.g. `5zig-Reborn-Revived-1.21.8-v0.1.0.jar`.
 ## Ported since the first pass
 - 5zig section in crash reports (`MixinMinecraft.fillReport`); core's CrashReportUtil now goes through
   `IVariables.crash` (it used obfuscated class names before and could not work on Fabric).
+- Crash uploads: `MixinMinecraft` marks a client crash (`crash` HEAD), `MixinCrashReport` uploads the
+  written report via `CrashReportUploader` (mclo.gs). The old crash-hopper.jar (5zig.net) is gone.
+- Now Playing: `mod/manager/media` (MPRIS via gdbus / Windows SMTC via a PowerShell helper / macOS
+  AppleScript). The module is still registered as `SPOTIFY` so saved layouts keep it.
+- Removed for safety: remote plugin store (PluginSocket on port 31415), plugin self-updates, the 5zig.net
+  easter egg, the trust-all HTTPS client.
 - Ping in ms on the server list (`MixinServerListEntry`, option "ping_on_serverlist").
 - Chat search + highlight words (`MixinGuiMessageLine` + `util/ChatHighlight`): matches are recoloured and
   underlined rather than boxed, so it works on every version without hooking the chat renderer's lambdas.

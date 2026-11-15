@@ -218,7 +218,7 @@ public class PacketPartyStatus implements Packet {
 			case SWITCH_SERVER:
 				party.setServer(server);
 				if (!Strings.isNullOrEmpty(server)) {
-					The5zigMod.getVars().joinServer(server.split(":")[0], Integer.parseInt(server.split(":")[1]));
+					{ io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address = io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(server); The5zigMod.getVars().joinServer(address.host, address.port); }
 					partyManager.addBroadcast("party.messages.switch_server", server);
 				}
 				break;

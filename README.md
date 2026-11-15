@@ -25,14 +25,21 @@ and put it in your `mods` folder. Requires **Fabric Loader 0.17.0+** and **Fabri
 - Ping on the tab list and on the server list
 - Account switcher with Microsoft accounts (sign in with a code at microsoft.com/link) and offline accounts
 - Confirm-disconnect, auto-reconnect, last-server button
-- 5zig section in crash reports
+- "Now Playing" module and media keybinds (play/pause, next, previous) for any player: on Linux every
+  MPRIS player (Spotify, tidal-hifi, browsers, ...), on Windows whatever shows in the Windows media
+  controls (Spotify, TIDAL, browsers, ...), on macOS Spotify and Apple Music. If Minecraft runs as a
+  Flatpak (e.g. Prism Launcher from Flathub), allow it to see players once:
+  `flatpak override --user --talk-name=org.mpris.MediaPlayer2.* org.prismlauncher.PrismLauncher`
+- 5zig section in crash reports; with "Upload Crash Reports" on (the default), a crash report is uploaded
+  to [mclo.gs](https://mclo.gs) and the link is shown and copied the next time the game starts
 
 Tested in-game on 1.20.1, 1.21.4, 1.21.8, 1.21.9 and 26.3. The other versions build from the same code
 paths but have not all been launched yet.
 
 ## What's missing
-- **Online features**: the original 5zig Reborn backend is offline, so the friends/chat network, capes and
-  update checks do not work. A custom backend may come later.
+- **Online features**: the original 5zig Reborn backend is offline, so the friends/chat network and capes
+  do not work. A custom backend may come later. Downloading plugins from the old plugin store, and plugins
+  updating themselves, were removed; install plugins by putting their jar in `the5zigmod/plugins`.
 - **Reward tags** above players: not ported (they need the backend).
 - **Battery module** shows no data (Windows-only); the Windows iTunes integration was removed.
 - Forge, NeoForge and versions older than 1.20.1 are not supported.

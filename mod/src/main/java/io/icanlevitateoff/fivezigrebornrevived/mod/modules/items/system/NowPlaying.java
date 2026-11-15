@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2020 5zig Reborn
+ * Copyright (c) 2026 IcanLevitate
  * Copyright (c) 2015-2019 5zig
  *
  * This file is part of The 5zig Mod
@@ -16,15 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with The 5zig Mod.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.icanlevitateoff.fivezigrebornrevived.mod.modules.items.system;
 
 import io.icanlevitateoff.fivezigrebornrevived.mod.I18n;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.Gui;
-import io.icanlevitateoff.fivezigrebornrevived.mod.manager.spotify.SpotifyManager;
-import io.icanlevitateoff.fivezigrebornrevived.mod.manager.spotify.SpotifyNewStatus;
-import io.icanlevitateoff.fivezigrebornrevived.mod.manager.spotify.SpotifyNewTrack;
+import io.icanlevitateoff.fivezigrebornrevived.mod.manager.media.MediaManager;
+import io.icanlevitateoff.fivezigrebornrevived.mod.manager.media.MediaStatus;
 import eu.the5zig.mod.modules.AbstractModuleItem;
 import io.icanlevitateoff.fivezigrebornrevived.mod.render.Base64Renderer;
 import eu.the5zig.mod.render.RenderLocation;
@@ -32,9 +31,11 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.util.GLUtil;
 import io.icanlevitateoff.fivezigrebornrevived.mod.util.ScrollingText;
 import io.icanlevitateoff.fivezigrebornrevived.util.Utils;
 
-import java.util.Locale;
-
-public class Spotify extends AbstractModuleItem {
+/**
+ * "Now Playing": title, artist, cover and progress of whatever media player is playing
+ * (Spotify, TIDAL, browsers, ...). Registered as "SPOTIFY" so existing layouts keep it.
+ */
+public class NowPlaying extends AbstractModuleItem {
 
 	private static final Base64Renderer base64Renderer = new Base64Renderer(The5zigMod.TRACK_LOCATION, 128, 128);
 
@@ -52,44 +53,50 @@ public class Spotify extends AbstractModuleItem {
 
 	@Override
 	public void render(int x, int y, RenderLocation renderLocation, boolean dummy) {
-		Gui.drawRect(x, y, x + getWidth(dummy), y + getHeight(dummy) - 2, SpotifyManager.SPOTIFY_COLOR_BACKGROUND);
+		Gui.drawRect(x, y, x + getWidth(dummy), y + getHeight(dummy) - 2, MediaManager.COLOR_BACKGROUND);
 
-		SpotifyManager spotifyManager = The5zigMod.getDataManager().getSpotifyManager();
-		SpotifyNewStatus status = spotifyManager != null && spotifyManager.isConnected() ? spotifyManager.getStatus() : null;
-		SpotifyNewTrack track = status != null && status.getTrack() != null ? status.getTrack() : null;
+		MediaManager media = The5zigMod.getDataManager().getMediaManager();
+		MediaStatus status = media != null ? media.getStatus() : null;
 
 		int trackLeft = x;
 		int trackTop = y;
 		int trackRight = x + getWidth(dummy) - 4;
 		int albumSize = getHeight(dummy) - 2;
-		// Album Preview
-		if (track != null) {
-			if (track.getImage() != null && !track.getImage().equals(base64Renderer.getBase64String())) {
-				base64Renderer.setBase64String(track.getImage(), "spotify/track_" + track.getId());
-			} else if (track.getImage() == null && base64Renderer.getBase64String() != null) {
-				base64Renderer.reset();
+		// Cover art
+		String art = status != null ? media.getArtBase64() : null;
+		if (art != null) {
+			if (!art.equals(base64Renderer.getBase64String())) {
+				base64Renderer.setBase64String(art, media.getArtId());
 			}
 		} else if (base64Renderer.getBase64String() != null) {
 			base64Renderer.reset();
 		}
 		base64Renderer.renderImage(trackLeft, trackTop, albumSize, albumSize);
 
-		// Track Info
+		// Track info
 		int infoLeft = trackLeft + albumSize + 4;
 		int infoTop = trackTop + 3;
 		int maxInfoWidth = trackRight - infoLeft;
-		String trackName = track != null ? status.getType() == SpotifyNewTrack.Type.ad ? I18n.translate("modules.item.spotify.ad") :
-				track.getName() : spotifyManager != null && spotifyManager.getDisconnectError() != null ? I18n.translate(
-				"modules.item.spotify.error." + spotifyManager.getDisconnectError().toString().toLowerCase(Locale.ROOT)) : null;
-		String artistName = track != null && track.getArtists() != null ? track.getArtistsString() : null;
+		String trackName;
+		String artistName;
+		if (status != null) {
+			trackName = status.title;
+			artistName = status.artist.isEmpty() ? status.player : status.artist;
+		} else if (media != null && media.getProblem() != null) {
+			trackName = I18n.translate("modules.item.spotify.unavailable");
+			artistName = media.getProblem();
+		} else {
+			trackName = I18n.translate("modules.item.spotify.nothing_playing");
+			artistName = null;
+		}
 
 		if (trackName != null && (scrollingTrack == null || !trackName.equals(scrollingTrack.getText()))) {
-			scrollingTrack = new ScrollingText(trackName, maxInfoWidth, 8, SpotifyManager.SPOTIFY_COLOR_BACKGROUND, 0xaaaaaa);
+			scrollingTrack = new ScrollingText(trackName, maxInfoWidth, 8, MediaManager.COLOR_BACKGROUND, 0xaaaaaa);
 		} else if (scrollingTrack != null && trackName == null) {
 			scrollingTrack = null;
 		}
 		if (artistName != null && (scrollingArtist == null || !artistName.equals(scrollingArtist.getText()))) {
-			scrollingArtist = new ScrollingText(artistName, maxInfoWidth, 6, SpotifyManager.SPOTIFY_COLOR_BACKGROUND, 0xaaaaaa);
+			scrollingArtist = new ScrollingText(artistName, maxInfoWidth, 6, MediaManager.COLOR_BACKGROUND, 0xaaaaaa);
 		} else if (scrollingArtist != null && artistName == null) {
 			scrollingArtist = null;
 		}
@@ -104,21 +111,19 @@ public class Spotify extends AbstractModuleItem {
 			scrollingArtist.render(infoLeft, infoTop + 9);
 		}
 
-		// position
+		// Position
 		int positionLineTop = y + getHeight(dummy) - 8;
 		int positionLineBottom = positionLineTop + 2;
 		int positionLineLeft = infoLeft + 11;
 		int positionLineRight = trackRight - 11;
 		int positionWidth = positionLineRight - positionLineLeft;
-		Gui.drawRect(positionLineLeft, positionLineTop, positionLineRight, positionLineBottom, SpotifyManager.SPOTIFY_COLOR_SECOND);
-		double playingPosition = status != null ? status.getProgress() * 1000 : 0;
-		long millisSinceUpdate = status != null && status.isPlaying() ? (int) (System.currentTimeMillis() - status.getTimestamp()) : 0;
-		double trackPosition = playingPosition + millisSinceUpdate;
-		long trackLength = track != null ? track.getDuration() * 1000 : 1000;
-		double trackPercentage = trackPosition / trackLength;
-		Gui.drawRect(positionLineLeft, positionLineTop, positionLineLeft + (trackPercentage * positionWidth), positionLineBottom, SpotifyManager.SPOTIFY_COLOR_ACCENT);
-		drawScaledString(Utils.convertToClock((long) trackPosition), infoLeft, positionLineTop, 0xaaaaaa, 0.35f);
-		drawScaledString(Utils.convertToClock(trackLength), positionLineRight + 2, positionLineTop, 0xaaaaaa, 0.35f);
+		Gui.drawRect(positionLineLeft, positionLineTop, positionLineRight, positionLineBottom, MediaManager.COLOR_SECOND);
+		long trackPosition = status != null ? status.currentPositionMs() : 0;
+		long trackLength = status != null ? status.lengthMs : 0;
+		double trackPercentage = trackLength > 0 ? Math.min(1.0, (double) trackPosition / trackLength) : 0;
+		Gui.drawRect(positionLineLeft, positionLineTop, positionLineLeft + (trackPercentage * positionWidth), positionLineBottom, MediaManager.COLOR_ACCENT);
+		drawScaledString(Utils.convertToClock(trackPosition), infoLeft, positionLineTop, 0xaaaaaa, 0.35f);
+		drawScaledString(trackLength > 0 ? Utils.convertToClock(trackLength) : "--:--", positionLineRight + 2, positionLineTop, 0xaaaaaa, 0.35f);
 	}
 
 	private void drawScaledString(String string, int x, int y, int color, float scale) {
@@ -134,11 +139,10 @@ public class Spotify extends AbstractModuleItem {
 		if (dummy) {
 			return true;
 		}
-		if (((Boolean) getProperties().getSetting("showSpotifyAlways").get())) {
-			return true;
-		}
-		SpotifyManager manager = The5zigMod.getDataManager().getSpotifyManager();
-		return manager != null && manager.getStatus() != null && manager.getStatus().getTrack() != null;
+		MediaManager media = The5zigMod.getDataManager().getMediaManager();
+		// Asking for the status keeps the players polled while this module is on screen.
+		MediaStatus status = media != null ? media.getStatus() : null;
+		return ((Boolean) getProperties().getSetting("showSpotifyAlways").get()) || status != null;
 	}
 
 	@Override

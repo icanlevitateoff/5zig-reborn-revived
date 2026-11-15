@@ -14,6 +14,7 @@
     "MixinClientPacketListener",
     "MixinConnectScreen",
     "MixinConnection",
+    "MixinCrashReport",
     "MixinGui",
     "MixinGuiMessageLine",
     "MixinKeyboardHandler",

@@ -28,7 +28,7 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.Version;
 import io.icanlevitateoff.fivezigrebornrevived.mod.config.items.BoolItem;
 import io.icanlevitateoff.fivezigrebornrevived.mod.config.items.HexColorItem;
 import io.icanlevitateoff.fivezigrebornrevived.mod.config.items.StringListItem;
-import io.icanlevitateoff.fivezigrebornrevived.mod.crashreport.CrashHopper;
+import io.icanlevitateoff.fivezigrebornrevived.mod.crashreport.CrashReportUploader;
 import eu.the5zig.mod.event.KeyPressEvent;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.Gui;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.GuiSettings;
@@ -68,7 +68,7 @@ public class ClassProxyCallbackImpl implements ClassProxyCallback {
 		Server server = The5zigMod.getLastServerConfig().getConfigInstance().getLastServer();
 		if (server == null)
 			return null;
-		return server.getHost() + ":" + server.getPort();
+		return io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.format(server.getHost(), server.getPort());
 	}
 
 	@Override
@@ -162,8 +162,8 @@ public class ClassProxyCallbackImpl implements ClassProxyCallback {
 	}
 
 	@Override
-	public void launchCrashHopper(Throwable cause, File crashFile) {
-		CrashHopper.launch(cause, crashFile);
+	public void onCrashReportSaved(File crashFile) {
+		CrashReportUploader.onCrashReportSaved(crashFile);
 	}
 
 	@Override

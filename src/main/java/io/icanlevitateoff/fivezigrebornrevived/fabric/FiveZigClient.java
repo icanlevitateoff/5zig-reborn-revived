@@ -292,18 +292,16 @@ public class FiveZigClient implements ClientModInitializer {
 		String server = MinecraftFactory.getClassProxyCallback().getLastServer();
 		String label;
 		if (server != null) {
-			String[] parts = server.split(":");
-			String host = parts[parts.length - 2];
-			int port = Integer.parseInt(parts[parts.length - 1]);
-			label = MinecraftFactory.getVars().shortenToWidth(port == 25565 ? host : host + ":" + port, 88);
+			label = MinecraftFactory.getVars().shortenToWidth(
+					io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(server).toDisplayString(), 88);
 		} else {
 			label = MinecraftFactory.getClassProxyCallback().translate("menu.no_last_server");
 		}
 		Button lastServer = Button.builder(Component.literal(label), b -> {
 			String last = MinecraftFactory.getClassProxyCallback().getLastServer();
 			if (last != null) {
-				String[] parts = last.split(":");
-				MinecraftFactory.getVars().joinServer(parts[parts.length - 2], Integer.parseInt(parts[parts.length - 1]));
+				io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address = io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(last);
+				MinecraftFactory.getVars().joinServer(address.host, address.port);
 			}
 		}).bounds(multiplayer.getX() + 102, multiplayer.getY(), 98, 20).build();
 		lastServer.active = server != null;

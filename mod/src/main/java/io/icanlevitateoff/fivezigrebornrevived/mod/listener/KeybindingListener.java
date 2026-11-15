@@ -51,6 +51,15 @@ public class KeybindingListener {
 		if (keybindingManager.raidTracker.callIsPressed()) {
 			The5zigMod.getVars().displayScreen(new GuiRaidCalculator(null));
 		}
+		if (keybindingManager.mediaPlayPause.callIsPressed()) {
+			The5zigMod.getDataManager().getMediaManager().playPause();
+		}
+		if (keybindingManager.mediaNext.callIsPressed()) {
+			The5zigMod.getDataManager().getMediaManager().next();
+		}
+		if (keybindingManager.mediaPrevious.callIsPressed()) {
+			The5zigMod.getDataManager().getMediaManager().previous();
+		}
 		if (lastPressed > 0)
 			lastPressed--;
 	}

@@ -323,7 +323,7 @@ public class Friend extends User implements RowExtended, Comparable<Friend> {
 			if (getStatus() != OnlineStatus.OFFLINE) {
 				String server = this.server;
 				if (!Strings.isNullOrEmpty(server) && !"Hidden".equals(server)) {
-					The5zigMod.getVars().joinServer(server.split(":")[0], Integer.parseInt(server.split(":")[1]));
+					{ io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort address = io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.parse(server); The5zigMod.getVars().joinServer(address.host, address.port); }
 					return The5zigMod.getVars().createButton(0, 0, 0, null);
 				}
 			}

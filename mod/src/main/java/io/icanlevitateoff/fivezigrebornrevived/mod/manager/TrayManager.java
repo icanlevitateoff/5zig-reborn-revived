@@ -116,8 +116,13 @@ public class TrayManager implements Runnable {
 	public void displayMessage(String title, String message) {
 		if (Utils.getPlatform() == Utils.Platform.MAC) {
 			try {
-				Runtime.getRuntime().exec(new String[] { "osascript", "-e",
-						"display notification \"" + message + "\" with title \"" + title + "\"" });
+				// Title and message go in as arguments, never into the script text: they can contain
+				// chat from other players, and quotes there would otherwise end the AppleScript string.
+				new ProcessBuilder("osascript",
+						"-e", "on run argv",
+						"-e", "display notification (item 1 of argv) with title (item 2 of argv)",
+						"-e", "end run",
+						String.valueOf(message), String.valueOf(title)).start();
 			} catch (IOException e) {
 				MinecraftFactory.getClassProxyCallback().getLogger().error("Could not display notification", e);
 			}

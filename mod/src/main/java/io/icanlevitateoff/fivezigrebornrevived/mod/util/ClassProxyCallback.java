@@ -76,7 +76,7 @@ public interface ClassProxyCallback {
 
 	void setAutoreconnectServerData(Object serverData);
 
-	void launchCrashHopper(Throwable cause, File crashFile);
+	void onCrashReportSaved(File crashFile);
 
 	void addSearch(SearchEntry searchEntry, SearchEntry... searchEntries);
 

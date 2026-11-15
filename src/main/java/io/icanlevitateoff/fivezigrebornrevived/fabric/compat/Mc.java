@@ -154,9 +154,10 @@ public final class Mc {
 		//? if >=26 {
 		/*return key > 0 && com.mojang.blaze3d.platform.InputConstants.isKeyDown(key);
 		*///?} else if >=1.21.9 {
-		/*return com.mojang.blaze3d.platform.InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), key);
+		/*return key > 0 && com.mojang.blaze3d.platform.InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), key);
 		*///?} else {
-		return com.mojang.blaze3d.platform.InputConstants.isKeyDown(window(), key);
+		// 0 is how unbound 5zig keys are stored; GLFW reports an error for it on every call.
+		return key > 0 && com.mojang.blaze3d.platform.InputConstants.isKeyDown(window(), key);
 		//?}
 	}
 

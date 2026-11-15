@@ -189,22 +189,6 @@ public class PluginManagerImpl implements PluginManager {
 		}
 		JsonObject jsonObject = jsonElement.getAsJsonObject();
 
-		if(!skipUpdateCheck && The5zigMod.getConfig().getBool("plugin_update")
-			&& jsonObject.has("updateUrl")) {
-			The5zigMod.logger.debug("Checking for updates.");
-			LoadedPlugin newerPlugin =
-					null;
-			try {
-				newerPlugin = checkOutdated(file, jsonObject.get("updateUrl").getAsString(),
-						jsonObject.get("version").getAsString(), jsonObject.get("name").getAsString());
-			} catch (Throwable throwable) {
-				throwable.printStackTrace();
-			}
-
-			if (newerPlugin != null)
-				return null;
-		}
-
 		if (!jsonObject.has("main") || !jsonObject.get("main").isJsonPrimitive()) {
 			throw new PluginException("main not found in plugin.json in file " + jarFile.getName());
 		}
@@ -489,39 +473,6 @@ public class PluginManagerImpl implements PluginManager {
 	@Override
 	public <T extends Event> T fireEvent(T event) {
 		return The5zigMod.getListener().fireEvent(event);
-	}
-
-	private LoadedPlugin checkOutdated(File plugin, String updateUrl, String currentVer, String name) throws Throwable {
-		if(updateUrl == null) return null;
-		String file = Utils.downloadFile(updateUrl, 2000);
-		if(file == null) {
-			The5zigMod.logger.error("Could not download update info for this plugin.");
-			return null;
-		}
-
-		JsonObject json = new JsonParser().parse(file).getAsJsonObject();
-		ComparableVersion latest = new ComparableVersion(json.get("latest").getAsString());
-		ComparableVersion local = new ComparableVersion(currentVer);
-
-		if(latest.compareTo(local) > 0) {
-			The5zigMod.logger.info("Found update. Downloading.");
-			long start = System.currentTimeMillis();
-
-			URL url = new URL(json.get("download").getAsString());
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.addRequestProperty("User-Agent", "5zig/" + Version.VERSION);
-
-			FileUtils.copyInputStreamToFile(connection.getInputStream(), plugin);
-			connection.disconnect();
-
-			The5zigMod.logger.info("Download complete, took {} ms.", System.currentTimeMillis() - start);
-
-			The5zigMod.getOverlayMessage().displayMessage("Plugin " + name + " updated to version " + latest.getCanonical());
-
-			return loadPlugin(plugin, true);
-		}
-
-		return null;
 	}
 
 }

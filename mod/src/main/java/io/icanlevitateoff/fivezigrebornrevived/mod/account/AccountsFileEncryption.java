@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019-2020 5zig Reborn
+ * Copyright (c) 2026 IcanLevitate
  * Copyright (c) 2015-2019 5zig
  *
  * This file is part of The 5zig Mod
@@ -22,75 +23,155 @@ package io.icanlevitateoff.fivezigrebornrevived.mod.account;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
-import org.apache.commons.io.IOUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
-import java.security.spec.KeySpec;
+import java.util.Arrays;
 
 /**
- * Created by RoccoDev on 2019-08-25.
+ * Reads and writes the password-protected accounts.enc.
+ *
+ * <p>Current format: {@code "5ZRR"}, format version 2 (1 byte), PBKDF2 iterations (4 bytes), salt
+ * (16 bytes), nonce (12 bytes), then the accounts JSON encrypted with AES-256-GCM, whose tag also
+ * detects a wrong password or a modified file. Salt and nonce are new on every save.
+ *
+ * <p>Files written by older versions (salt 64, IV 16, AES-128-CBC, 10,000 iterations) are still
+ * read; {@link #needsUpgrade()} then tells the caller to save again in the current format.
+ *
+ * Originally created by RoccoDev on 2019-08-25.
  */
 public class AccountsFileEncryption {
 
-    private static byte[] salt, iv;
+	private static final byte[] MAGIC = {'5', 'Z', 'R', 'R'};
+	private static final int FORMAT = 2;
+	private static final int ITERATIONS = 210_000;
+	private static final int SALT_LENGTH = 16;
+	private static final int NONCE_LENGTH = 12;
+	private static final int TAG_BITS = 128;
+	private static final int MAX_ITERATIONS = 10_000_000;
 
-    public static void encrypt(String password, JsonObject jsonIn) throws Exception {
-        if(salt == null || iv == null) {
-            SecureRandom rdm = new SecureRandom();
-            salt = new byte[64];
-            iv = new byte[16];
+	private static final SecureRandom RANDOM = new SecureRandom();
 
-            rdm.nextBytes(salt);
-            rdm.nextBytes(iv);
-        }
-        Cipher cipher = create(password, true);
-        File out = new File(The5zigMod.getModDirectory(), "accounts.enc");
-        FileOutputStream fos = new FileOutputStream(out);
-        fos.write(salt);
-        fos.write(iv);
-        fos.write(cipher.doFinal(jsonIn.toString().getBytes(StandardCharsets.UTF_8)));
-        fos.close();
-    }
+	private static volatile boolean needsUpgrade;
 
-    public static JsonObject decrypt(String password) throws Exception {
-        File in = new File(The5zigMod.getModDirectory(), "accounts.enc");
+	private static File file() {
+		return new File(The5zigMod.getModDirectory(), "accounts.enc");
+	}
 
-        FileInputStream fis = new FileInputStream(in);
-        salt = new byte[64];
-        iv = new byte[16];
-        fis.read(salt);
-        fis.read(iv);
-        byte[] encrypted = new byte[(int) in.length() - (64 + 16)];
-        fis.read(encrypted);
-        fis.close();
+	/** True after {@link #decrypt} read a file in the old format. */
+	public static boolean needsUpgrade() {
+		return needsUpgrade;
+	}
 
-        Cipher cipher = create(password, false);
+	public static synchronized void encrypt(String password, JsonObject jsonIn) throws Exception {
+		byte[] salt = new byte[SALT_LENGTH];
+		byte[] nonce = new byte[NONCE_LENGTH];
+		RANDOM.nextBytes(salt);
+		RANDOM.nextBytes(nonce);
 
-        return new JsonParser().parse(IOUtils.toString(cipher.doFinal(encrypted), "UTF-8")).getAsJsonObject();
-    }
+		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+		cipher.init(Cipher.ENCRYPT_MODE, deriveKey(password, salt, ITERATIONS, 256), new GCMParameterSpec(TAG_BITS, nonce));
+		byte[] header = header(salt, nonce);
+		cipher.updateAAD(header);
+		byte[] encrypted = cipher.doFinal(jsonIn.toString().getBytes(StandardCharsets.UTF_8));
 
-    private static Cipher create(String password, boolean encrypt) throws Exception {
+		ByteArrayOutputStream out = new ByteArrayOutputStream(header.length + encrypted.length);
+		out.write(header);
+		out.write(encrypted);
 
-        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-        KeySpec passwordBasedEncryptionKeySpec = new PBEKeySpec(password.toCharArray(), salt, 10000, 128);
-        SecretKey secretKeyFromPBKDF2 = secretKeyFactory.generateSecret(passwordBasedEncryptionKeySpec);
-        SecretKey key = new SecretKeySpec(secretKeyFromPBKDF2.getEncoded(), "AES");
+		// Write next to the file and move it over, so a crash mid-write cannot destroy the accounts.
+		File target = file();
+		File temp = new File(target.getParentFile(), target.getName() + ".tmp");
+		Files.write(temp.toPath(), out.toByteArray());
+		try {
+			Files.move(temp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+		} catch (IOException e) {
+			Files.move(temp.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+		needsUpgrade = false;
+	}
 
-        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        IvParameterSpec spec = new IvParameterSpec(iv);
+	public static synchronized JsonObject decrypt(String password) throws Exception {
+		byte[] data = Files.readAllBytes(file().toPath());
+		byte[] plain;
+		if (data.length > MAGIC.length && Arrays.equals(Arrays.copyOf(data, MAGIC.length), MAGIC)) {
+			plain = decryptCurrent(password, data);
+			needsUpgrade = false;
+		} else {
+			plain = decryptLegacy(password, data);
+			needsUpgrade = true;
+		}
+		return JsonParser.parseString(new String(plain, StandardCharsets.UTF_8)).getAsJsonObject();
+	}
 
-        cipher.init(encrypt ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE, key, spec);
+	private static byte[] decryptCurrent(String password, byte[] data) throws Exception {
+		ByteBuffer buffer = ByteBuffer.wrap(data);
+		buffer.position(MAGIC.length);
+		int format = buffer.get() & 0xFF;
+		if (format != FORMAT) {
+			throw new IOException("accounts.enc was written by a newer version of the mod (format " + format + ")");
+		}
+		int iterations = buffer.getInt();
+		if (iterations <= 0 || iterations > MAX_ITERATIONS) {
+			throw new IOException("accounts.enc is damaged");
+		}
+		byte[] salt = new byte[SALT_LENGTH];
+		byte[] nonce = new byte[NONCE_LENGTH];
+		buffer.get(salt);
+		buffer.get(nonce);
+		int headerLength = buffer.position();
+		byte[] encrypted = new byte[buffer.remaining()];
+		buffer.get(encrypted);
 
-        return cipher;
-    }
+		Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+		cipher.init(Cipher.DECRYPT_MODE, deriveKey(password, salt, iterations, 256), new GCMParameterSpec(TAG_BITS, nonce));
+		cipher.updateAAD(data, 0, headerLength);
+		return cipher.doFinal(encrypted);
+	}
+
+	private static byte[] decryptLegacy(String password, byte[] data) throws Exception {
+		if (data.length < 64 + 16 + 16) {
+			throw new IOException("accounts.enc is damaged");
+		}
+		byte[] salt = Arrays.copyOfRange(data, 0, 64);
+		byte[] iv = Arrays.copyOfRange(data, 64, 80);
+		Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		cipher.init(Cipher.DECRYPT_MODE, deriveKey(password, salt, 10_000, 128), new IvParameterSpec(iv));
+		return cipher.doFinal(data, 80, data.length - 80);
+	}
+
+	private static byte[] header(byte[] salt, byte[] nonce) throws IOException {
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		DataOutputStream out = new DataOutputStream(bytes);
+		out.write(MAGIC);
+		out.writeByte(FORMAT);
+		out.writeInt(ITERATIONS);
+		out.write(salt);
+		out.write(nonce);
+		return bytes.toByteArray();
+	}
+
+	private static SecretKey deriveKey(String password, byte[] salt, int iterations, int bits) throws Exception {
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, bits);
+		try {
+			byte[] key = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512").generateSecret(spec).getEncoded();
+			return new SecretKeySpec(key, "AES");
+		} finally {
+			spec.clearPassword();
+		}
+	}
 }

@@ -587,9 +587,9 @@ public class Variables implements IVariables {
 	@Override
 	public void joinServer(String host, int port) {
 		//? if >=1.20.2 {
-		ServerData data = new ServerData(host, host + ":" + port, ServerData.Type.OTHER);
+		ServerData data = new ServerData(host, io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.format(host, port), ServerData.Type.OTHER);
 		//?} else {
-		/*ServerData data = new ServerData(host, host + ":" + port, false);
+		/*ServerData data = new ServerData(host, io.icanlevitateoff.fivezigrebornrevived.util.HostAndPort.format(host, port), false);
 		*///?}
 		joinServer(Mc.screen(), data);
 	}
