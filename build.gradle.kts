@@ -203,9 +203,10 @@ tasks.processResources {
         "minecraft" to prop("deps.minecraft_range"),
         "java" to javaVersion,
         "mixin_java" to if (javaVersion >= 21) "JAVA_21" else "JAVA_17",
+        "azure_client_id" to (System.getenv("FIVEZIG_AZURE_CLIENT_ID") ?: prop("auth.azure_client_id")),
     )
     inputs.properties(props)
-    filesMatching(listOf("fabric.mod.json", "fivezigrebornrevived.mixins.json")) { expand(props) }
+    filesMatching(listOf("fabric.mod.json", "fivezigrebornrevived.mixins.json", "fivezigrebornrevived-auth.properties")) { expand(props) }
     // Core i18n bundles are read with Properties.load (ISO-8859-1): escape non-ASCII.
     filesMatching("lang/**/*.properties") { filter<EscapeUnicode>() }
 

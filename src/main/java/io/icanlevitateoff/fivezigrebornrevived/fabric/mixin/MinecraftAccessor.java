@@ -34,6 +34,14 @@ public interface MinecraftAccessor {
 	@Accessor("user")
 	void the5zig$setUser(User user);
 
+	@Mutable
+	@Accessor("profileKeyPairManager")
+	void the5zig$setProfileKeyPairManager(net.minecraft.client.multiplayer.ProfileKeyPairManager manager);
+
+	@Mutable
+	@Accessor("userApiService")
+	void the5zig$setUserApiService(com.mojang.authlib.minecraft.UserApiService service);
+
 	@Invoker("startUseItem")
 	void the5zig$startUseItem();
 }

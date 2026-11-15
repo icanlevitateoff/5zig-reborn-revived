@@ -21,7 +21,7 @@ package io.icanlevitateoff.fivezigrebornrevived.mod.gui;
 
 import eu.the5zig.mod.gui.*;
 
-import com.mojang.authlib.exceptions.AuthenticationException;
+import eu.the5zig.util.minecraft.ChatColor;
 import io.icanlevitateoff.fivezigrebornrevived.mod.I18n;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import io.icanlevitateoff.fivezigrebornrevived.mod.account.Account;
@@ -33,7 +33,7 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.gui.elements.ITextfield;
  */
 public class GuiAccount extends Gui {
 
-    private ITextfield userField, passwordField;
+    private ITextfield userField;
     private Account account;
 
     public GuiAccount(Gui lastScreen) {
@@ -48,71 +48,39 @@ public class GuiAccount extends Gui {
     @Override
     public void initGui() {
         addTextField(userField = The5zigMod.getVars().createTextfield(1, getWidth() / 2 - 150,
-                getHeight() / 4, 300, 20));
-        addTextField(passwordField = The5zigMod.getVars().createTextfield(2, getWidth() / 2 - 150,
-                getHeight() / 2, 300, 20));
-        userField.callSetMaxStringLength(254);
-
+                getHeight() / 3, 300, 20));
+        userField.callSetMaxStringLength(16);
         addButton(The5zigMod.getVars().createButton(201, getWidth() / 2 - 100, getHeight() - 35, The5zigMod.getVars().translate("gui.done")));
-
-        if(account != null) {
-            if("legacy".equals(account.getAccountType()))
-                userField.callSetText(account.getName());
-            else userField.callSetText(account.getEmail());
+        if (account != null) {
+            userField.callSetText(account.getName());
         }
-
-        passwordField.setIsPassword(true);
     }
 
     @Override
     protected void drawScreen(int mouseX, int mouseY, float partialTicks) {
         super.drawScreen(mouseX, mouseY, partialTicks);
-        drawCenteredString(I18n.translate("account_manager.username"), getWidth() / 2, getHeight() / 4 - 10);
-        drawCenteredString(I18n.translate("account_manager.password"), getWidth() / 2, getHeight() / 2 - 10);
+        drawCenteredString(I18n.translate("account_manager.offline_name"), getWidth() / 2, getHeight() / 3 - 10);
+        drawCenteredString(ChatColor.GRAY + I18n.translate("account_manager.offline_hint"), getWidth() / 2, getHeight() / 3 + 28);
     }
 
     @Override
     protected void actionPerformed(IButton button) {
-        if(button.getId() == 201) {
+        if (button.getId() == 201) {
             String user = userField.callGetText();
-            String password = passwordField.callGetText();
-
-            if(user == null || user.isEmpty()) {
-                The5zigMod.getVars().displayScreen(lastScreen);
-                return;
-            }
-
-            if(account != null) {
-                if(password == null || password.isEmpty()) {
+            if (user != null && !user.isEmpty()) {
+                if (account != null) {
                     account.setName(user);
-                }
-                else {
-                    account.setEmail(user);
-                    account.setPassword(password);
-                }
-
-                The5zigMod.getAccountManager().save();
-            }
-            else {
-                if (password == null || password.isEmpty()) {
-                    The5zigMod.getAccountManager().addOfflineAccount(user);
+                    The5zigMod.getAccountManager().save();
                 } else {
-                    try {
-                        The5zigMod.getAccountManager().addAccount(user, password);
-                    } catch (AuthenticationException e) {
-                        e.printStackTrace();
-                        The5zigMod.getOverlayMessage().displayMessage("Auth error", "Bad login");
-                        return;
-                    }
+                    The5zigMod.getAccountManager().addOfflineAccount(user);
                 }
             }
-
             The5zigMod.getVars().displayScreen(lastScreen);
         }
     }
 
     @Override
     public String getTitleKey() {
-        return "account_manager.edit";
+        return "account_manager.add_offline_title";
     }
 }

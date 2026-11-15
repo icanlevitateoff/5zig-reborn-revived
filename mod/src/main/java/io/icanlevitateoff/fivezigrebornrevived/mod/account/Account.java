@@ -35,6 +35,8 @@ public class Account implements RowExtended {
     private String email, password;
     private String uuid, name;
     private String accountType;
+    /** Microsoft refresh token ("msa" accounts); the accounts file is encrypted. */
+    private String refreshToken;
 
     // Rendering
     private transient Base64Renderer renderer;
@@ -52,6 +54,18 @@ public class Account implements RowExtended {
     public void initRenderer() {
         if(renderer == null)
             renderer = new Base64Renderer();
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public boolean isMicrosoft() {
+        return "msa".equals(accountType);
     }
 
     public String getEmail() {

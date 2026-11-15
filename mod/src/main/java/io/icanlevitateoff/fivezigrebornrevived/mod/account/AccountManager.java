@@ -76,10 +76,17 @@ public class AccountManager {
     }
 
     /**
-     * Mojang (Yggdrasil) password login was shut down; Microsoft accounts can't be added from here.
+     * Adds (or updates) a Microsoft account after a successful device-code login and switches to it.
      */
-    public void addAccount(String email, String password) throws AuthenticationException {
-        throw new AuthenticationException("Mojang password login is no longer available. Only offline accounts can be added.");
+    public void addMicrosoftAccount(MicrosoftAuth.Result result) {
+        Account account = accounts.stream().filter(a -> result.uuid.equals(a.getUuid())).findFirst().orElse(null);
+        if (account == null) {
+            account = new Account(null, null, result.uuid, result.name, "msa");
+            accounts.add(account);
+        }
+        account.setName(result.name);
+        account.setRefreshToken(result.refreshToken);
+        applyMicrosoft(account, result);
     }
 
     public void addOfflineAccount(String username) {
@@ -87,8 +94,8 @@ public class AccountManager {
         accounts.add(account);
 
         The5zigMod.getVars().setSession(username, username, "0", "legacy");
+        selectOnly(account);
         updateSettings();
-        account.setSelected(true);
         try {
             save();
         } catch (Exception e) {
@@ -96,15 +103,51 @@ public class AccountManager {
         }
     }
 
-
+    /**
+     * Switches to the account. Offline accounts switch immediately; Microsoft accounts log in again
+     * with their stored refresh token in the background, so this returns before that finishes.
+     */
     public void login(Account account) throws AuthenticationException {
+        if (account.isMicrosoft()) {
+            if (account.getRefreshToken() == null) {
+                throw new AuthenticationException("This Microsoft account has no saved login. Remove it and add it again.");
+            }
+            The5zigMod.getOverlayMessage().displayMessage("Microsoft login", "Logging in as " + account.getName() + "...");
+            POOL.execute(() -> {
+                try {
+                    MicrosoftAuth.Result result = MicrosoftAuth.refresh(account.getRefreshToken());
+                    account.setRefreshToken(result.refreshToken);
+                    applyMicrosoft(account, result);
+                } catch (Exception e) {
+                    The5zigMod.logger.warn("Microsoft login failed for " + account.getName() + ": " + e.getMessage());
+                    The5zigMod.getOverlayMessage().displayMessageAndSplit("Login failed: " + e.getMessage());
+                }
+            });
+            return;
+        }
         if (!"legacy".equals(account.getAccountType())) {
-            throw new AuthenticationException("Mojang password login is no longer available. Only offline accounts can be used.");
+            throw new AuthenticationException("Mojang accounts no longer exist. Remove this account and add it as a Microsoft account.");
         }
         The5zigMod.getVars().setSession(account.getName(), account.getName(), "0", "legacy");
-        account.setSelected(true);
+        selectOnly(account);
         updateSettings();
         The5zigMod.getOverlayMessage().displayMessage("Login Success", "Logged in as " + account.getName());
+    }
+
+    private void applyMicrosoft(Account account, MicrosoftAuth.Result result) {
+        The5zigMod.getVars().runOnMainThread(() -> {
+            The5zigMod.getVars().setSession(result.name, result.uuid, result.accessToken, "msa");
+            selectOnly(account);
+            updateSettings();
+            save();
+            The5zigMod.getOverlayMessage().displayMessage("Login Success", "Logged in as " + result.name);
+        });
+    }
+
+    private void selectOnly(Account account) {
+        for (Account other : accounts) {
+            other.setSelected(other == account);
+        }
     }
 
     public void save() {

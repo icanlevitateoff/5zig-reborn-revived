@@ -23,6 +23,7 @@ and put it in your `mods` folder. Requires **Fabric Loader 0.17.0+** and **Fabri
 - Second chat, chat filters (`%player%` / `%plr%` = your username), time-stamped chat
 - Chat search, highlight words, transparent chat background
 - Ping on the tab list and on the server list
+- Account switcher with Microsoft accounts (sign in with a code at microsoft.com/link) and offline accounts
 - Confirm-disconnect, auto-reconnect, last-server button
 - 5zig section in crash reports
 
@@ -33,7 +34,6 @@ paths but have not all been launched yet.
 - **Online features**: the original 5zig Reborn backend is offline, so the friends/chat network, capes and
   update checks do not work. A custom backend may come later.
 - **Reward tags** above players: not ported (they need the backend).
-- **Account switcher**: offline accounts only; Mojang password login no longer exists.
 - **Battery module** shows no data (Windows-only); the Windows iTunes integration was removed.
 - Forge, NeoForge and versions older than 1.20.1 are not supported.
 
@@ -46,6 +46,20 @@ Jars land in `versions/<minecraft version>/build/libs/5zig-Reborn-Revived-<minec
 `./gradlew :1.21.8:runClient` starts a dev client (muted, offline user `5ZRRDEVTEST`; use offline-mode
 servers for multiplayer testing). See [FABRIC_PORT_NOTES.md](FABRIC_PORT_NOTES.md) for how the
 multi-version setup works.
+
+## Microsoft login (account switcher)
+Microsoft sign-in needs an Azure application (client) ID, set at build time:
+```
+# gradle.properties
+auth.azure_client_id=<your Azure application (client) ID>
+```
+(or the `FIVEZIG_AZURE_CLIENT_ID` environment variable). Builds without it hide nothing but show
+"Microsoft login is not available in this build" when you press the button.
+
+The Azure app must be registered for **personal Microsoft accounts**, with **"Allow public client
+flows"** enabled, and Mojang must approve it for Minecraft services
+([form](https://aka.ms/mce-reviewappid)); until then Microsoft sign-in works but the Minecraft step
+fails with "not approved by Mojang". Refresh tokens are stored in the password-encrypted accounts file.
 
 ## Making a release
 1. Bump `mod.version` in `gradle.properties` (e.g. `0.1.1` → `0.1.2`).

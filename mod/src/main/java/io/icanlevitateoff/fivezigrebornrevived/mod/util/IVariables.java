@@ -430,6 +430,12 @@ public interface IVariables {
 	 */
 	void crash(Throwable cause, String description);
 
+	/** Runs the task on the game (render) thread, now if already there. */
+	void runOnMainThread(Runnable task);
+
+	/** Puts text on the system clipboard through the game's window. */
+	void setClipboard(String text);
+
 	/**
 	 * @return the second ingame chat.
 	 */

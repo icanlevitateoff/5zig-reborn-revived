@@ -808,6 +808,20 @@ public class Variables implements IVariables {
 	}
 
 	@Override
+	public void runOnMainThread(Runnable task) {
+		if (mc().isSameThread()) {
+			task.run();
+		} else {
+			mc().execute(task);
+		}
+	}
+
+	@Override
+	public void setClipboard(String text) {
+		mc().keyboardHandler.setClipboard(text);
+	}
+
+	@Override
 	public void setSession(String name, String uuid, String token, String userType) {
 		UUID id;
 		try {
@@ -825,7 +839,34 @@ public class Variables implements IVariables {
 		/*User.Type type = "msa".equalsIgnoreCase(userType) ? User.Type.MSA : User.Type.LEGACY;
 		((MinecraftAccessor) mc()).the5zig$setUser(new User(name, id.toString().replace("-", ""), token, Optional.empty(), Optional.empty(), type));
 		*///?}
+		refreshChatKeys("msa".equalsIgnoreCase(userType) ? token : null);
 	}
+
+	/**
+	 * Vanilla creates the chat signing keys and the user API service once, for the account the game
+	 * started with. After switching account they have to match the new one, or servers enforcing
+	 * secure chat reject messages.
+	 */
+	private void refreshChatKeys(String accessToken) {
+		MinecraftAccessor accessor = (MinecraftAccessor) mc();
+		if (accessToken == null) {
+			accessor.the5zig$setProfileKeyPairManager(net.minecraft.client.multiplayer.ProfileKeyPairManager.EMPTY_KEY_MANAGER);
+			return;
+		}
+		try {
+			//? if >=26 {
+			/*com.mojang.authlib.minecraft.UserApiService api = com.mojang.authlib.services.MinecraftServicesDiscoveryService.create(mc().getProxy()).createUserApiService(accessToken);
+			*///?} else {
+			com.mojang.authlib.minecraft.UserApiService api = new com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService(mc().getProxy()).createUserApiService(accessToken);
+			//?}
+			accessor.the5zig$setUserApiService(api);
+			accessor.the5zig$setProfileKeyPairManager(net.minecraft.client.multiplayer.ProfileKeyPairManager.create(api, mc().getUser(), mc().gameDirectory.toPath()));
+		} catch (Exception e) {
+			io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod.logger.warn("Could not set up chat signing for the new account: " + e);
+			accessor.the5zig$setProfileKeyPairManager(net.minecraft.client.multiplayer.ProfileKeyPairManager.EMPTY_KEY_MANAGER);
+		}
+	}
+
 
 	// ---------------------------------------------------------------- player / world state
 

@@ -72,7 +72,8 @@ Versioning: `<mc>-v<mod.version>`, e.g. `5zig-Reborn-Revived-1.21.8-v0.1.0.jar`.
 - Reward tags above players: skipped for now. They only display tags pushed by the 5zig backend (offline);
   revisit together with a custom backend. Needs three renderers (pre-1.21.2, render states, 1.21.9+ submit).
 - Battery module (Windows-only Kernel32) returns no data; iTunes on Windows removed (JACOB).
-- Mojang password login gone upstream: account switcher only supports offline accounts.
+- Account switcher: Microsoft accounts via device code (`account/MicrosoftAuth`, `GuiMicrosoftLogin`; client ID from
+  `auth.azure_client_id`) and offline accounts. Switching also rebuilds vanilla's chat-signing keys and user API service.
 
 ## In-game test checklist (per version)
 1. Title screen: version text top-left, "last server" button next to Multiplayer.

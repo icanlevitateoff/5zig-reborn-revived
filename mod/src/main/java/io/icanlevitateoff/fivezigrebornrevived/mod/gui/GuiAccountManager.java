@@ -25,6 +25,7 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import io.icanlevitateoff.fivezigrebornrevived.mod.I18n;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import io.icanlevitateoff.fivezigrebornrevived.mod.account.Account;
+import io.icanlevitateoff.fivezigrebornrevived.mod.account.MicrosoftAuth;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.elements.Clickable;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.elements.IButton;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.elements.IGuiList;
@@ -78,15 +79,24 @@ public class GuiAccountManager extends Gui implements Clickable<Account> {
         guiList.setDrawSelection(true);
         addGuiList(guiList);
 
-        addButton(The5zigMod.getVars().createButton(1, getWidth() / 2 - 190, getHeight() - 27, 90, 20, I18n.translate("account_manager.add_btn")));
-        addButton(The5zigMod.getVars().createButton(2, getWidth() / 2 - 95, getHeight() - 27, 90, 20, I18n.translate("account_manager.remove")));
-        addButton(The5zigMod.getVars().createButton(3, getWidth() / 2, getHeight() - 27, 90, 20, I18n.translate("account_manager.edit_btn")));
-        addButton(The5zigMod.getVars().createButton(4, getWidth() / 2 + 95, getHeight() - 27, 90, 20, I18n.translate("account_manager.change_password")));
+        int x = getWidth() / 2 - 190;
+        addButton(The5zigMod.getVars().createButton(5, x, getHeight() - 27, 74, 20, I18n.translate("account_manager.add_microsoft")));
+        addButton(The5zigMod.getVars().createButton(1, x + 76, getHeight() - 27, 74, 20, I18n.translate("account_manager.add_offline")));
+        addButton(The5zigMod.getVars().createButton(2, x + 152, getHeight() - 27, 74, 20, I18n.translate("account_manager.remove")));
+        addButton(The5zigMod.getVars().createButton(3, x + 228, getHeight() - 27, 74, 20, I18n.translate("account_manager.edit_btn")));
+        addButton(The5zigMod.getVars().createButton(4, x + 304, getHeight() - 27, 76, 20, I18n.translate("account_manager.change_password")));
     }
 
     @Override
     protected void actionPerformed(IButton button) {
-        if(button.getId() == 1) { // Add
+        if(button.getId() == 5) { // Add Microsoft
+            if (!MicrosoftAuth.isConfigured()) {
+                The5zigMod.getOverlayMessage().displayMessageAndSplit(I18n.translate("account_manager.microsoft.not_configured"));
+                return;
+            }
+            The5zigMod.getVars().displayScreen(new GuiMicrosoftLogin(this));
+        }
+        else if(button.getId() == 1) { // Add offline
             The5zigMod.getVars().displayScreen(new GuiAccount(this));
         }
         else if(button.getId() == 2) { // Remove
@@ -99,8 +109,12 @@ public class GuiAccountManager extends Gui implements Clickable<Account> {
             }
             The5zigMod.getAccountManager().save();
         }
-        else if(button.getId() == 3) { // Edit
-            The5zigMod.getVars().displayScreen(new GuiAccount(guiList.getSelectedRow(), this));
+        else if(button.getId() == 3) { // Edit (offline names only; Microsoft names come from the profile)
+            Account selected = guiList.getSelectedRow();
+            if (selected == null || selected.isMicrosoft()) {
+                return;
+            }
+            The5zigMod.getVars().displayScreen(new GuiAccount(selected, this));
         }
         else if(button.getId() == 4) { // Change password
             GuiCenteredTextfield field = new GuiCenteredTextfield(this, new CenteredTextfieldCallback() {
@@ -133,7 +147,7 @@ public class GuiAccountManager extends Gui implements Clickable<Account> {
                 The5zigMod.getAccountManager().login(row);
             } catch (AuthenticationException e) {
                 e.printStackTrace();
-                The5zigMod.getOverlayMessage().displayMessage("Auth error", "Bad login");
+                The5zigMod.getOverlayMessage().displayMessageAndSplit(e.getMessage());
             }
         }
     }
