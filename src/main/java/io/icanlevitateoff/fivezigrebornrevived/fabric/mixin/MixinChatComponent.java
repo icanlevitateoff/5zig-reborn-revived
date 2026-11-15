@@ -44,6 +44,14 @@ public abstract class MixinChatComponent {
 		}
 	}
 
+	/** Vanilla resets its scroll when the chat closes; the 2nd chat has to follow, or it stays scrolled up and shows only old (faded) lines. */
+	@Inject(method = "resetChatScroll", at = @At("HEAD"))
+	private void the5zig$resetScroll(CallbackInfo ci) {
+		if (The5zigMod.hasBeenInitialized()) {
+			The5zigMod.getVars().get2ndChat().resetScroll();
+		}
+	}
+
 	@Inject(method = "clearMessages", at = @At("HEAD"))
 	private void the5zig$clear(boolean clearHistory, CallbackInfo ci) {
 		if (The5zigMod.hasBeenInitialized()) {
