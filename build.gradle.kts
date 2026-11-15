@@ -84,6 +84,10 @@ stonecutter {
             replace("\\bnet\\.minecraft\\.client\\.GuiMessage\\b", "net.minecraft.client.multiplayer.chat.GuiMessage")
             reverse("\\bnet\\.minecraft\\.client\\.multiplayer\\.chat\\.GuiMessage\\b", "net.minecraft.client.GuiMessage")
         }
+        regex(eval(current.version, ">=26")) {
+            replace("\\bScreenEvents\\.beforeRender\\b", "ScreenEvents.beforeExtract")
+            reverse("\\bScreenEvents\\.beforeExtract\\b", "ScreenEvents.beforeRender")
+        }
     }
 }
 

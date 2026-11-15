@@ -180,8 +180,7 @@ public class FiveZigClient implements ClientModInitializer {
 				ScreenEvents.afterRender(screen).register((s, g, mouseX, mouseY, delta) ->
 						RenderContext.with(g, () -> MinecraftFactory.getVars().drawString(Version.getVersionDisplay(), 2, 2)));
 			} else if (screen instanceof OptionsScreen) {
-				Screens.getButtons(screen).add(Button.builder(Component.literal(MinecraftFactory.getClassProxyCallback().translate("menu.the5zigMod")),
-						b -> MinecraftFactory.getVars().displayScreen(new GuiSettings(null, "main"))).bounds(width / 2 - 155, height / 6 + 18, 150, 20).build());
+				addSettingsButton(screen);
 			} else if (screen instanceof PauseScreen) {
 				addDisconnectConfirmation(screen);
 			} else if (screen instanceof DisconnectedScreen disconnected) {
@@ -192,6 +191,41 @@ public class FiveZigClient implements ClientModInitializer {
 				BytecodeHook.onGuiGameOverInit();
 			}
 		});
+	}
+
+	/**
+	 * "The 5zig Mod..." in vanilla Options, in the empty row between FOV/Online and Skin
+	 * Customization. Since 1.21 a window resize only re-lays-out vanilla's own widgets, so the
+	 * position is re-derived from those anchors every frame instead of being fixed at init.
+	 */
+	private static void addSettingsButton(Screen screen) {
+		Button button = Button.builder(Component.literal(MinecraftFactory.getClassProxyCallback().translate("menu.the5zigMod")),
+				b -> MinecraftFactory.getVars().displayScreen(new GuiSettings(null, "main"))).bounds(0, 0, 150, 20).build();
+		Screens.getButtons(screen).add(button);
+		placeSettingsButton(screen, button);
+		ScreenEvents.beforeRender(screen).register((s, g, mouseX, mouseY, delta) -> placeSettingsButton(s, button));
+	}
+
+	private static void placeSettingsButton(Screen screen, Button button) {
+		List<AbstractWidget> widgets = Screens.getButtons(screen);
+		AbstractWidget skin = widgets.stream().filter(w -> hasKey(w, "options.skinCustomisation")).findFirst().orElse(null);
+		AbstractWidget fov = null; // the FOV slider: lowest left-column widget ending above Skin Customization
+		if (skin != null) {
+			for (AbstractWidget widget : widgets) {
+				if (widget != button && widget != skin && widget.getX() < screen.width / 2 && widget.getY() + widget.getHeight() <= skin.getY()
+						&& (fov == null || widget.getY() > fov.getY())) {
+					fov = widget;
+				}
+			}
+		}
+		button.setX(screen.width / 2 - button.getWidth() / 2);
+		if (skin != null && fov != null && skin.getY() - (fov.getY() + fov.getHeight()) >= button.getHeight()) {
+			button.setY((fov.getY() + fov.getHeight() + skin.getY()) / 2 - button.getHeight() / 2);
+		} else if (skin != null) {
+			button.setY(skin.getY() - button.getHeight() - 4);
+		} else {
+			button.setY(screen.height / 6 + 18);
+		}
 	}
 
 	private static boolean hasKey(AbstractWidget widget, String key) {
