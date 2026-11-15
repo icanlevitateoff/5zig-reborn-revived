@@ -68,9 +68,15 @@ public class Overlay implements IOverlay {
 	@Override
 	public void displayMessageAndSplit(String message, Object uniqueReference) {
 		List<String> split = MinecraftFactory.getVars().splitStringToWidth(message, MinecraftFactory.getClassProxyCallback().getOverlayTexture() == 2 ? 142 : 150);
-		String title = split.size() > 0 ? split.get(0) : null;
-		String subTitle = split.size() > 1 ? split.get(1) : null;
-		displayMessage(title, subTitle, uniqueReference);
+		if (split.isEmpty()) {
+			return;
+		}
+		// A toast has room for two lines; longer messages continue in further toasts, which vanilla
+		// stacks underneath. Only the first one carries the unique reference (it gets replaced).
+		displayMessage(split.get(0), split.size() > 1 ? split.get(1) : null, uniqueReference);
+		for (int i = 2; i < split.size(); i += 2) {
+			FiveZigToast.create(split.get(i), i + 1 < split.size() ? split.get(i + 1) : null, null);
+		}
 	}
 
 	private static final class FiveZigToast implements Toast {
