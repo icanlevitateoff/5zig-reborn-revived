@@ -57,7 +57,11 @@ public class AccountManager {
         gson = new Gson();
         accountsType = new TypeToken<List<Account>>(){}.getType();
 
-        POOL = Executors.newFixedThreadPool(1);
+        POOL = Executors.newFixedThreadPool(1, r -> {
+            Thread t = new Thread(r, "5zig Accounts");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     public AccountManager() {

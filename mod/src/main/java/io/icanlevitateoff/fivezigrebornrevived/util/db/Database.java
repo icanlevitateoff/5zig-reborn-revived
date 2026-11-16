@@ -50,7 +50,7 @@ public class Database {
 		this.databaseConfiguration = databaseConfiguration;
 		this.connection = openConnection();
 		EXECUTOR = Executors.newFixedThreadPool(databaseConfiguration == null ? 1 : databaseConfiguration.getThreadCount(),
-				new ThreadFactoryBuilder().setNameFormat("Database Queue #%d").build());
+				new ThreadFactoryBuilder().setNameFormat("Database Queue #%d").setDaemon(true).build());
 	}
 
 	public IDatabaseConfiguration getDatabaseConfiguration() {
@@ -230,6 +230,14 @@ public class Database {
 	}
 
 	public synchronized void closeConnection() {
+		// The queue threads are daemons (so they cannot keep the game from exiting): let queued
+		// writes finish first, for a moment at most.
+		EXECUTOR.shutdown();
+		try {
+			EXECUTOR.awaitTermination(3, java.util.concurrent.TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 		if (!this.connected)
 			return;
 		try {

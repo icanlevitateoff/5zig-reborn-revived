@@ -34,7 +34,7 @@ public class AsyncExecutor {
 	private ExecutorService service;
 
 	public AsyncExecutor() {
-		service = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Async Executor Pool #%1$d").build());
+		service = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Async Executor Pool #%1$d").setDaemon(true).build());
 	}
 
 	/**

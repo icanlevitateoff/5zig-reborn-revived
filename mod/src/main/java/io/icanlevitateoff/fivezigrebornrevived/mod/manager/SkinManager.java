@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SkinManager {
 
-	private final ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Skin Download Thread #%d").build());
+	private final ExecutorService executorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("Skin Download Thread #%d").setDaemon(true).build());
 	private final File dir;
 	private final String END = ".skin";
 	private HashMap<String, Base64Skin> base64EncodedSkins = new HashMap<String, Base64Skin>();

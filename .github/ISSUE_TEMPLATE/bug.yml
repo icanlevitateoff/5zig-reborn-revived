@@ -36,8 +36,8 @@ body:
     id: mod-version
     attributes:
       label: Mod version
-      description: From the jar name or the title screen, e.g. `1.21.8-v0.5.2`.
-      placeholder: 1.21.8-v0.5.2
+      description: From the jar name or the title screen, e.g. `1.21.8-v0.5.3`.
+      placeholder: 1.21.8-v0.5.3
     validations:
       required: true
   - type: input

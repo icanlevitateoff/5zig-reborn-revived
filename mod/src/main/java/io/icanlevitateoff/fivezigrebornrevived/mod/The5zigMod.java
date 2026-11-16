@@ -610,7 +610,9 @@ public class The5zigMod {
 	 */
 	public static void newNetworkManager() {
 		networkManager = NetworkManager.connect();
-		new Thread(networkManager::initLoop).start();
+		Thread loop = new Thread(networkManager::initLoop, "5zig Network");
+		loop.setDaemon(true);
+		loop.start();
 	}
 
 	/**

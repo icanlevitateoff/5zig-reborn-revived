@@ -60,11 +60,23 @@ final class MprisSource implements MediaSource {
 			// Flatpak hides other apps' bus names unless the launcher is allowed to see them.
 			throw new MediaException("No players found. Flatpak may be hiding them; allow with: flatpak override --user --talk-name=org.mpris.MediaPlayer2.* " + flatpak);
 		}
-		MediaStatus best = null;
-		String bestName = null;
+		List<String> names = new ArrayList<>();
+		List<MediaStatus> statuses = new ArrayList<>();
 		for (String name : players) {
 			MediaStatus status = read(name);
-			if (status == null || !status.hasTrack()) {
+			if (status != null && status.hasTrack()) {
+				names.add(name);
+				statuses.add(status);
+			}
+		}
+		MediaStatus best = null;
+		String bestName = null;
+		for (int i = 0; i < statuses.size(); i++) {
+			String name = names.get(i);
+			MediaStatus status = statuses.get(i);
+			if (isBrowser(name) && hasSameTrackElsewhere(i, names, statuses)) {
+				// Electron apps (tidal-hifi, Discord, ...) also show up as a "chromium" player with
+				// the same song, whose cover is a temporary file that a sandboxed game cannot read.
 				continue;
 			}
 			boolean better = best == null
@@ -103,6 +115,24 @@ final class MprisSource implements MediaSource {
 		return new MediaStatus(playerName(busName), GVariantText.string(text, "xesam:title"), artist,
 				GVariantText.string(text, "xesam:album"), lengthMicros / 1000, positionMicros / 1000,
 				state.equals("Playing"), GVariantText.string(text, "mpris:artUrl"));
+	}
+
+	private static boolean isBrowser(String busName) {
+		String name = busName.substring(PREFIX.length()).toLowerCase(Locale.ROOT);
+		return name.startsWith("chromium") || name.startsWith("chrome") || name.startsWith("firefox")
+				|| name.startsWith("brave") || name.startsWith("vivaldi") || name.startsWith("edge");
+	}
+
+	/** True if a player that is not a browser reports a song with the same title. */
+	private static boolean hasSameTrackElsewhere(int index, List<String> names, List<MediaStatus> statuses) {
+		MediaStatus status = statuses.get(index);
+		for (int i = 0; i < statuses.size(); i++) {
+			// Title only: the browser copy often lists the artists differently.
+			if (i != index && !isBrowser(names.get(i)) && statuses.get(i).title.equalsIgnoreCase(status.title)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** "org.mpris.MediaPlayer2.tidal-hifi" -> "Tidal-hifi"; instance suffixes are dropped. */

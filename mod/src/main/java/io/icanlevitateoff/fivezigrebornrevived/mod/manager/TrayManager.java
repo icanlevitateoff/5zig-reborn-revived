@@ -45,7 +45,7 @@ public class TrayManager implements Runnable {
 	private boolean trayInitialized = false;
 
 	public TrayManager() {
-		Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("Tray").build()).execute(this);
+		Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("Tray").setDaemon(true).build()).execute(this);
 	}
 
 	@Override

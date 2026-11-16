@@ -51,7 +51,7 @@ public class MojangAPIManager extends APIManager {
 
 	public MojangAPIManager() {
 		super("");
-		Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Mojang Status").build()).scheduleAtFixedRate(new Runnable() {
+		Executors.newSingleThreadScheduledExecutor(new ThreadFactoryBuilder().setNameFormat("Mojang Status").setDaemon(true).build()).scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				if (!The5zigMod.getConfig().getBool("mojangStatus")) {
