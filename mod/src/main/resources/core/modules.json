@@ -2,7 +2,7 @@
   "modules": [
     {
       "id": "stats",
-      "name": "The 5zig Mod v%version%",
+      "name": "5Zig Reborn Revived %version%",
       "translation": "",
       "showLabel": true,
       "location": "TOP_LEFT",

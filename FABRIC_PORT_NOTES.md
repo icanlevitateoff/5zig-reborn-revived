@@ -37,6 +37,29 @@ Versioning: `<mc>-v<mod.version>`, e.g. `5zig-Reborn-Revived-1.21.8-v0.1.0.jar`.
 - `api/` and `i18n/` are vendored (were upstream submodules). The old Forge layers (`version-specific/`) were
   dropped from the repo; get them from github.com/5zig-reborn/version-support if needed.
 
+## Publishing
+
+`./gradlew publishMods` builds every version, uploads each jar to CurseForge (project 1811222) and
+creates the GitHub release `v<mod.version>` with all the jars attached.
+
+1. Bump `mod.version` in `gradle.properties`.
+2. Write the notes to `release-notes/v<mod.version>.md`. They become the CurseForge changelog and the
+   GitHub release text.
+3. Commit and push (the release tag is created on `main`).
+4. `./gradlew publishMods -Ppublish.dryRun` to check: nothing is uploaded, the result goes to
+   `build/publishMods` in each project. Then `./gradlew publishMods` for real.
+
+Tokens live outside the repo, in `~/.gradle/gradle.properties`: `curseforgeToken=...` and
+`githubToken=...` (fine-grained, Contents read/write on this repo). The `CURSEFORGE_TOKEN` and
+`GITHUB_TOKEN` environment variables work too. A platform whose token is missing only does a dry run
+(Gradle prints a warning). `./gradlew publishCurseforge` uploads to CurseForge only, e.g. for a version
+that is already on GitHub.
+
+Release type: `publish.type` in `gradle.properties` (release, beta or alpha). Set it in
+`versions/<v>/gradle.properties` to change one version, or pass `-Ppublish.type=beta` for one run.
+CurseForge game versions per jar: `publish.game_versions` in `versions/<v>/gradle.properties`; keep it in
+step with `deps.minecraft_range` when adding a version.
+
 ## Version notes worth knowing
 - **26.x uses SDL3 scancodes** (A=4, Esc=41, left mouse=1). Core and saved 5zig keybinds stay GLFW;
   `compat/Keys` translates at every boundary (generated table matched by `InputConstants.KEY_*` name).

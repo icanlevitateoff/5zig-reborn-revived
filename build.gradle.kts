@@ -4,6 +4,7 @@ import net.fabricmc.loom.api.LoomGradleExtensionAPI
 
 plugins {
     java
+    id("me.modmuss50.mod-publish-plugin")
 }
 
 fun prop(name: String) = property(name).toString()
@@ -209,4 +210,46 @@ tasks.jar {
         "Minecraft-Version" to mcVersion,
     )
     from(rootProject.file("LICENSE"))
+}
+
+// CurseForge upload for this version + its jar on the GitHub release the root project creates.
+// Shared settings (tokens, dry run, release type) are explained in stonecutter.gradle.kts.
+// ./gradlew publishCurseforge uploads to CurseForge only (e.g. for a release already on GitHub).
+val modVersion = prop("mod.version")
+val finalJar = tasks.named<AbstractArchiveTask>(if (unobfuscated) "jar" else "remapJar")
+val curseforgeToken = providers.gradleProperty("curseforgeToken").orElse(providers.environmentVariable("CURSEFORGE_TOKEN"))
+val githubToken = providers.gradleProperty("githubToken").orElse(providers.environmentVariable("GITHUB_TOKEN"))
+
+publishMods {
+    file = finalJar.flatMap { it.archiveFile }
+    displayName = finalJar.flatMap { it.archiveFileName }.map { it.removeSuffix(".jar") }
+    version = project.version.toString()
+    changelog = providers.fileContents(rootProject.layout.projectDirectory.file("release-notes/v$modVersion.md")).asText
+    // publish.type in versions/<v>/gradle.properties overrides the root default for one version.
+    type = when (val t = prop("publish.type").lowercase()) {
+        "release", "stable" -> STABLE
+        "beta" -> BETA
+        "alpha" -> ALPHA
+        else -> throw GradleException("publish.type must be release, beta or alpha, not '$t'")
+    }
+    modLoaders.add("fabric")
+    dryRun = hasProperty("publish.dryRun")
+
+    curseforge {
+        accessToken = curseforgeToken
+        dryRun = !curseforgeToken.isPresent || hasProperty("publish.dryRun")
+        projectId = "1811222"
+        // Exact CurseForge version names, from versions/<v>/gradle.properties.
+        minecraftVersions.addAll(prop("publish.game_versions").split(",").map { it.trim() })
+        javaVersions.add(JavaVersion.toVersion(javaVersion))
+        client = true
+        server = false
+        requires("fabric-api")
+    }
+
+    github {
+        accessToken = githubToken
+        dryRun = !githubToken.isPresent || hasProperty("publish.dryRun")
+        parent(rootProject.tasks.named("publishGithub"))
+    }
 }

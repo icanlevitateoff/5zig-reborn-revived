@@ -271,6 +271,10 @@ public class ModuleMaster {
 
 	private Module parseModule(JsonObject moduleObject, String moduleId) {
 		String moduleName = moduleObject.has("name") ? moduleObject.get("name").getAsString() : null;
+		// Old default title of the stats module; saved configs keep it, so rename it here.
+		if ("The 5zig Mod v%version%".equals(moduleName)) {
+			moduleName = "5Zig Reborn Revived %version%";
+		}
 		String moduleTranslation = moduleObject.has("translation") ? moduleObject.get("translation").getAsString() : null;
 		ModuleLocation location;
 		AnchorPoint anchorPoint = null;
