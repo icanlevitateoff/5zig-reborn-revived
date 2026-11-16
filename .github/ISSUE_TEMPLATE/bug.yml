@@ -1,7 +1,7 @@
 name: Bug
 description: Something in 5zig Reborn Revived doesn't work as expected (no crash).
 title: "[Bug] "
-labels: ["bug"]
+labels: ["Bug"]
 body:
   - type: markdown
     attributes:
@@ -36,8 +36,8 @@ body:
     id: mod-version
     attributes:
       label: Mod version
-      description: From the jar name or the title screen, e.g. `1.21.8-v0.1.2`.
-      placeholder: 1.21.8-v0.1.2
+      description: From the jar name or the title screen, e.g. `1.21.8-v0.5.0`.
+      placeholder: 1.21.8-v0.5.0
     validations:
       required: true
   - type: input
@@ -71,7 +71,7 @@ body:
     id: mods
     attributes:
       label: Other mods installed
-      description: List them, or write "none". Conflicts with other mods are a common cause.
+      description: List them, or write "none". If it only happens with a certain mod installed, use the **Mod Compatibility** template.
   - type: textarea
     id: log
     attributes:

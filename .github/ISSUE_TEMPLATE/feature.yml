@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest a new feature, or an original 5zig feature that should come back.
 title: "[Feature] "
-labels: ["enhancement"]
+labels: ["Suggestion"]
 body:
   - type: textarea
     id: idea

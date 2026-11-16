@@ -1,0 +1,88 @@
+name: Mod Compatibility
+description: 5zig Reborn Revived misbehaves or crashes together with another mod.
+title: "[Mod Compat] "
+labels: ["Compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when something only goes wrong while another mod is installed too.
+        If the game crashed, please still fill this in (not the Crash template) and add the crash report below.
+  - type: dropdown
+    id: mc-version
+    attributes:
+      label: Minecraft version
+      options:
+        - "26.3"
+        - "1.21.11"
+        - "1.21.10"
+        - "1.21.9"
+        - "1.21.8"
+        - "1.21.7"
+        - "1.21.6"
+        - "1.21.5"
+        - "1.21.4"
+        - "1.21.3"
+        - "1.21.2"
+        - "1.21.1"
+        - "1.21"
+        - "1.20.4"
+        - "1.20.3"
+        - "1.20.1"
+        - "1.20"
+    validations:
+      required: true
+  - type: input
+    id: mod-version
+    attributes:
+      label: 5zig Reborn Revived version
+      description: From the jar name or the title screen, e.g. `1.21.8-v0.5.0`.
+      placeholder: 1.21.8-v0.5.0
+    validations:
+      required: true
+  - type: input
+    id: other-mod
+    attributes:
+      label: Other mod(s)
+      description: Name and exact version of the mod(s) it conflicts with, with a link (Modrinth/CurseForge) if you have one.
+      placeholder: e.g. Sodium 0.6.13 (https://modrinth.com/mod/sodium)
+    validations:
+      required: true
+  - type: input
+    id: loader
+    attributes:
+      label: Fabric Loader and Fabric API versions
+      placeholder: Loader 0.17.2, Fabric API 0.136.1+1.21.8
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What goes wrong?
+      description: What breaks, and what did you expect instead? Screenshots help.
+    validations:
+      required: true
+  - type: checkboxes
+    id: isolated
+    attributes:
+      label: Narrowed down
+      options:
+        - label: It also happens with only Fabric API, 5zig Reborn Revived and the other mod(s) installed.
+        - label: It does not happen without the other mod(s).
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Install both mods
+        2. Open chat
+        3. ...
+  - type: textarea
+    id: mods
+    attributes:
+      label: Full mod list or modpack
+      description: All installed mods, or the modpack name and version.
+  - type: textarea
+    id: log
+    attributes:
+      label: Crash report or log
+      description: The mclo.gs link 5zig shows after a crash, the crash report, or the relevant part of `.minecraft/logs/latest.log`.
+      render: text

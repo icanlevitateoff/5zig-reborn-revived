@@ -1,7 +1,7 @@
 name: Crash
 description: The game crashed or would not start with 5zig Reborn Revived installed.
 title: "[Crash] "
-labels: ["bug", "crash"]
+labels: ["Bug", "Crash"]
 body:
   - type: markdown
     attributes:
