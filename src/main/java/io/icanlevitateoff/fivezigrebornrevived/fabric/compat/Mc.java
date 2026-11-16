@@ -165,6 +165,15 @@ public final class Mc {
 	public static boolean isMouseDown(int button) {
 		//? if >=26 {
 		/*net.minecraft.client.MouseHandler mouse = Minecraft.getInstance().mouseHandler;
+		// isLeftPressed() etc. are only updated while no screen is open; activeButton (the button
+		// held down right now, null when none) is updated always, so it also works in menus.
+		Object active = activeButton(mouse);
+		if (active instanceof net.minecraft.client.input.MouseButtonInfo info && info.button() == Keys.mouseToNative(button)) {
+			return true;
+		}
+		if (screen() != null) {
+			return false;
+		}
 		return switch (button) {
 			case 0 -> mouse.isLeftPressed();
 			case 1 -> mouse.isRightPressed();
@@ -175,6 +184,27 @@ public final class Mc {
 		return org.lwjgl.glfw.GLFW.glfwGetMouseButton(window(), button) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
 		//?}
 	}
+
+	//? if >=26 {
+	/*private static java.lang.reflect.Field activeButtonField;
+	private static boolean activeButtonMissing;
+
+	private static Object activeButton(net.minecraft.client.MouseHandler mouse) {
+		if (activeButtonMissing) {
+			return null;
+		}
+		try {
+			if (activeButtonField == null) {
+				activeButtonField = net.minecraft.client.MouseHandler.class.getDeclaredField("activeButton");
+				activeButtonField.setAccessible(true);
+			}
+			return activeButtonField.get(mouse);
+		} catch (ReflectiveOperationException | RuntimeException e) {
+			activeButtonMissing = true;
+			return null;
+		}
+	}
+	*///?}
 
 	// ---------------------------------------------------------------- input events (1.21.9+)
 
