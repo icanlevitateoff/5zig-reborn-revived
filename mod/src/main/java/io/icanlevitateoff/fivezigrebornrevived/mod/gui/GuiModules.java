@@ -79,6 +79,7 @@ public class GuiModules extends Gui implements Clickable<Module> {
 		addButton(The5zigMod.getVars()
 				.createStringButton(98, getWidth() / 2 + 180 - The5zigMod.getVars().getStringWidth(resetText), 30, The5zigMod.getVars().getStringWidth(resetText), 10, resetText));
 
+		addButton(The5zigMod.getVars().createButton(12, getWidth() / 2 - 60, 26, 120, 20, I18n.translate("modules.edit_layout")));
 		addButton(The5zigMod.getVars().createButton(1, getWidth() / 2 - 180, getHeight() - 48 - 20, 145, 20, I18n.translate("modules.add")));
 		addButton(The5zigMod.getVars().createButton(2, getWidth() / 2 - 30, getHeight() - 48 - 20, 20, 20, "-"));
 		addButton(The5zigMod.getVars().createButton(5, getWidth() / 2 + 10, getHeight() - 48 - 44, 80, 20, I18n.translate("modules.settings")));
@@ -91,6 +92,11 @@ public class GuiModules extends Gui implements Clickable<Module> {
 
 	@Override
 	protected void actionPerformed(IButton button) {
+		if (button.getId() == 12) {
+			The5zigMod.getModuleMaster().save();
+			The5zigMod.getVars().displayScreen(new GuiHudEditor(this));
+			return;
+		}
 		if (button.getId() == 1) {
 			int currentIndex = guiList.getSelectedId();
 			StringBuilder moduleId = new StringBuilder("new-module");

@@ -54,6 +54,7 @@ public class KeybindingManager {
 	public final IKeybinding nameHistory;
 	public final IKeybinding toggleChatFilter;
 	public final IKeybinding changeAccount;
+	public final IKeybinding hudEditor;
 	public final IKeybinding mediaPlayPause;
 	public final IKeybinding mediaNext;
 	public final IKeybinding mediaPrevious;
@@ -77,6 +78,7 @@ public class KeybindingManager {
 		nameHistory = registerKeybinding("the5zigmod.key.username_history", Keyboard.KEY_NONE, GuiNameHistory.class);
 		toggleChatFilter = registerKeybinding("the5zigmod.key.toggle_chat_filter", Keyboard.KEY_NONE);
 		changeAccount = registerKeybinding("the5zigmod.key.change_account", Keyboard.KEY_NONE, GuiAccountManager.class);
+		hudEditor = registerKeybinding("the5zigmod.key.hud_editor", Keyboard.KEY_RSHIFT, io.icanlevitateoff.fivezigrebornrevived.mod.gui.GuiHudEditor.class);
 		mediaPlayPause = registerKeybinding("the5zigmod.key.media.play_pause", Keyboard.KEY_NONE);
 		mediaNext = registerKeybinding("the5zigmod.key.media.next", Keyboard.KEY_NONE);
 		mediaPrevious = registerKeybinding("the5zigmod.key.media.previous", Keyboard.KEY_NONE);

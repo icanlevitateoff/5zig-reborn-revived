@@ -58,7 +58,7 @@ public class DisplayRenderer {
 			chatSymbolsRenderer.render();
 		}
 
-		if (The5zigMod.getConfig().getBool("showMod")) {
+		if (The5zigMod.getConfig().getBool("showMod") && !io.icanlevitateoff.fivezigrebornrevived.mod.gui.GuiHudEditor.isOpen()) {
 			scale = The5zigMod.getConfig().getFloat("scale");
 			GLUtil.pushMatrix();
 			GLUtil.scale(scale, scale, scale);

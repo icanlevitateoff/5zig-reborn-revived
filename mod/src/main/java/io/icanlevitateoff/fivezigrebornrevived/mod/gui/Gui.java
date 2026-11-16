@@ -349,6 +349,10 @@ public abstract class Gui {
 		for (IGuiList guiList : guiLists) {
 			guiList.callMouseScrolled(v);
 		}
+		mouseScrolled(v);
+	}
+
+	protected void mouseScrolled(double amount) {
 	}
 
 	public ITextfield getSelectedTextField() {

@@ -94,3 +94,5 @@ Versioning: `<mc>-v<mod.version>`, e.g. `5zig-Reborn-Revived-1.21.8-v0.1.0.jar`.
   connection from `ConnectScreen.startConnecting`; later joins on the same connection are proxy switches.
 - Discord: own IPC client (`mod/discord/DiscordIpc`, JDK UNIX sockets / Windows pipe) replaced
   DiscordIPC + junixsocket. App id in `DiscordRPCManager.CLIENT_ID`, large image asset key `logo`.
+- HUD layout editor: `mod/gui/GuiHudEditor` (keybind Right Shift). Moved modules become CUSTOM with the
+  anchor of the screen third their center is in; `DisplayRenderer` skips modules while it is the current screen.

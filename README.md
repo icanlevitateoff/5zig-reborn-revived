@@ -24,6 +24,8 @@ and put it in your `mods` folder. Requires **Fabric Loader 0.17.0+** and **Fabri
 - Chat search, highlight words, transparent chat background
 - Ping on the tab list and on the server list
 - Account switcher with Microsoft accounts (sign in with a code at microsoft.com/link) and offline accounts
+- HUD layout editor (Right Shift, or "Edit HUD Layout" in Modules): drag modules, snap to edges and other
+  modules, resize with the corner or mouse wheel, right click for module settings
 - Confirm-disconnect, auto-reconnect, last-server button
 - Join auto-texts with delays in milliseconds, optionally waiting for a proxy (Velocity/BungeeCord) server
   switch, e.g. `/server survival` and then `/home` once you are there

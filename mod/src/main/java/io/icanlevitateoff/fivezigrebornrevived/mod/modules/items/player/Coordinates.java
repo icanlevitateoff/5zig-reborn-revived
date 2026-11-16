@@ -40,7 +40,7 @@ public class Coordinates extends AbstractModuleItem {
 		List<Map.Entry<String, String>> coordinates = getCoordinates(dummy);
 		int i = 0;
 		for (Map.Entry<String, String> entry : coordinates) {
-			draw(entry, x, y + 10 * i, renderLocation == RenderLocation.CENTERED);
+			draw(entry, x, y + 10 * i);
 			i++;
 		}
 	}
@@ -61,15 +61,10 @@ public class Coordinates extends AbstractModuleItem {
 		return new AbstractMap.SimpleImmutableEntry<>(key, value);
 	}
 
-	private void draw(Map.Entry<String, String> pair, int x, int y, boolean centered) {
-		if (centered) {
-			int length = The5zigMod.getVars().getStringWidth(pair.getKey());
-			renderPrefix(pair.getKey(), (x - length / 2), y);
-			The5zigMod.getVars().drawCenteredString(pair.getValue(), x + length / 2, y, getMainColor());
-		} else {
-			renderPrefix(pair.getKey(), x, y);
-			The5zigMod.getVars().drawString(formatValue(pair.getValue()), x + The5zigMod.getVars().getStringWidth(pair.getKey()), y, getMainColor());
-		}
+	/** x is the left edge for every alignment: Module.render has already centered the item. */
+	private void draw(Map.Entry<String, String> pair, int x, int y) {
+		renderPrefix(pair.getKey(), x, y);
+		The5zigMod.getVars().drawString(formatValue(pair.getValue()), x + The5zigMod.getVars().getStringWidth(pair.getKey()), y, getMainColor());
 	}
 
 	@Override
