@@ -1,5 +1,5 @@
 # 5zig Reborn Revived
-a really stupid vibecoded port of 5zig reborn to modern versions of minecraft
+A port of 5-Zig Reborn to modern Fabric versions, with extra features.
 
 A Fabric revival of The 5zig Mod by IcanLevitate, for Minecraft 1.20.1, 1.20.4, 1.21.1, 1.21.3–1.21.11 and 26.3.
 Based on [The 5zig Mod](https://github.com/5zig-reborn/The-5zig-Mod) by 5zig and the 5zig Reborn team
