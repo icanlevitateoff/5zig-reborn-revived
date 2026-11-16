@@ -63,10 +63,10 @@ public class NowPlaying extends AbstractModuleItem {
 		int trackRight = x + getWidth(dummy) - 4;
 		int albumSize = getHeight(dummy) - 2;
 		// Cover art
-		String art = status != null ? media.getArtBase64() : null;
+		MediaManager.Art art = status != null ? media.getArt() : null;
 		if (art != null) {
-			if (!art.equals(base64Renderer.getBase64String())) {
-				base64Renderer.setBase64String(art, media.getArtId());
+			if (!art.base64.equals(base64Renderer.getBase64String())) {
+				base64Renderer.setBase64String(art.base64, art.id);
 			}
 		} else if (base64Renderer.getBase64String() != null) {
 			base64Renderer.reset();

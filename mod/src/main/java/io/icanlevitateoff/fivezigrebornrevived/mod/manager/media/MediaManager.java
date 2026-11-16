@@ -58,14 +58,31 @@ public class MediaManager {
 	private static final long IDLE_AFTER = 10_000;
 	private static final int ART_SIZE = 128;
 	private static final long MAX_ART_BYTES = 8 * 1024 * 1024;
+	/** Tries per cover before giving up on it (one per poll, so about this many seconds). */
+	private static final int ART_ATTEMPTS = 5;
 
 	private final MediaSource source;
 	private volatile MediaStatus status;
 	private volatile String problem;
 	private volatile long lastDemand;
-	private volatile String artBase64;
-	private volatile String artId;
+	/**
+	 * Cover art and its texture id, swapped as one object: the HUD reads it from another thread,
+	 * and reading the two separately could pair new art with no id yet (which crashed).
+	 */
+	public static final class Art {
+		public final String base64;
+		public final String id;
+
+		private Art(String base64, String id) {
+			this.base64 = base64;
+			this.id = id;
+		}
+	}
+
+	private volatile Art art;
 	private String artKey;
+	private String artFailedKey;
+	private int artFailures;
 	private int artCounter;
 	private Thread thread;
 
@@ -94,14 +111,9 @@ public class MediaManager {
 		return problem;
 	}
 
-	/** Base64 PNG of the current cover art, or null. */
-	public String getArtBase64() {
-		return artBase64;
-	}
-
-	/** Changes whenever the cover art does. */
-	public String getArtId() {
-		return artId;
+	/** The current cover art (base64 PNG and a texture id that changes with it), or null. */
+	public Art getArt() {
+		return art;
 	}
 
 	public void playPause() {
@@ -176,16 +188,33 @@ public class MediaManager {
 		if (key.equals(artKey)) {
 			return;
 		}
+		if (!key.equals(artFailedKey)) {
+			artFailedKey = null;
+			artFailures = 0;
+		}
+		String loaded = next.artUrl == null ? null : toBase64Png(load(preferSmall(next.artUrl)));
+		if (loaded == null && next.artUrl != null && ++artFailures < ART_ATTEMPTS) {
+			// Players often publish the new URL before the image is available, and downloads can
+			// time out: try again on the next polls instead of giving up on this track's cover.
+			artFailedKey = key;
+			setArt(null);
+			return;
+		}
 		artKey = key;
-		setArt(next.artUrl == null ? null : toBase64Png(load(next.artUrl)));
+		setArt(loaded);
+	}
+
+	/** TIDAL serves 1280px covers by default; the module draws 128px, so ask for a smaller size. */
+	private static String preferSmall(String url) {
+		return url.startsWith("https://resources.tidal.com/images/") ? url.replace("/1280x1280.", "/320x320.") : url;
 	}
 
 	private void setArt(String base64) {
-		if (base64 == null ? artBase64 == null : base64.equals(artBase64)) {
+		Art current = art;
+		if (base64 == null ? current == null : current != null && base64.equals(current.base64)) {
 			return;
 		}
-		artBase64 = base64;
-		artId = base64 == null ? null : "media/art_" + (artCounter++);
+		art = base64 == null ? null : new Art(base64, "media/art_" + (artCounter++));
 	}
 
 	/** Loads cover art from an http(s) or file URL given by the player. */
