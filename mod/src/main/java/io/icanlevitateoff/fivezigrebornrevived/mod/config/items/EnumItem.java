@@ -52,6 +52,10 @@ public class EnumItem<E extends Enum> extends ConfigItem<E> {
 		object.addProperty(getKey(), get().toString());
 	}
 
+	public Class<E> getEnumClass() {
+		return e;
+	}
+
 	@Override
 	public void next() {
 		set(e.getEnumConstants()[(get().ordinal() + 1) % e.getEnumConstants().length]);

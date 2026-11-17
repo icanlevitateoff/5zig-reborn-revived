@@ -155,7 +155,7 @@ public class GuiCapeSettings extends Gui {
 
 				@Override
 				public String getTitle() {
-					return "The 5zig Mod - " + I18n.translate("cape.upload.title");
+					return The5zigMod.NAME + " - " + I18n.translate("cape.upload.title");
 				}
 			}, "png"));
 		}

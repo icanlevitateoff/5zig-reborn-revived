@@ -128,6 +128,24 @@ public abstract class ConfigItem<T> implements IConfigItem<T> {
 		return I18n.translate(translationPrefix + "." + category + "." + Utils.upperToDash(key)) + ": " + translateValue();
 	}
 
+	/** The item's name on its own, without ": value". */
+	public String translateName() {
+		return I18n.translate(translationPrefix + "." + category + "." + Utils.upperToDash(key));
+	}
+
+	/** How {@link #translateValue()} would show {@code value} if it were set. Leaves the item unchanged. */
+	public String translateValueOf(T value) {
+		T current = get();
+		boolean changed = this.changed;
+		set(value);
+		try {
+			return translateValue();
+		} finally {
+			set(current);
+			this.changed = changed;
+		}
+	}
+
 	public String translateDescription() {
 		return I18n.translate(translationPrefix + "." + category + "." + Utils.upperToDash(key) + ".desc");
 	}

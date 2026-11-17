@@ -194,6 +194,9 @@ public class GuiHandle extends Screen implements IGuiHandle {
 		if (key == Keyboard.KEY_RETURN || key == Keyboard.KEY_NUMPADENTER || key == Keyboard.KEY_TAB) {
 			// Core reacts to these through keyTyped (enter = confirm, tab = next field).
 			child.keyTyped0((char) 0, key);
+		} else if (key > 0) {
+			// Every other key with its code (after the text fields have handled it, e.g. Backspace).
+			child.keyDown0(key);
 		}
 	}
 
@@ -212,7 +215,7 @@ public class GuiHandle extends Screen implements IGuiHandle {
 
 	@Override
 	public void onClose() {
-		MinecraftFactory.getVars().displayScreen(child.lastScreen);
+		child.goBack();
 		child.guiClosed0();
 	}
 

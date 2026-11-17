@@ -94,6 +94,6 @@ public class SettingListener {
 	}
 
 	private void message(String setting) {
-		The5zigMod.getVars().messagePlayer(The5zigMod.getRenderer().getPrefix("The 5zig Mod") + I18n.translate("api.setting_disabled", setting));
+		The5zigMod.getVars().messagePlayer(The5zigMod.getRenderer().getPrefix(The5zigMod.NAME) + I18n.translate("api.setting_disabled", setting));
 	}
 }

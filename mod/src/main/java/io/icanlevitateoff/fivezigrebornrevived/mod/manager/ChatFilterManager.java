@@ -153,7 +153,7 @@ public class ChatFilterManager {
 			return chatMessage.getAction() != ChatFilter.Action.COPY_SECOND_CHAT;
 		} else if (chatMessage.getAction() == ChatFilter.Action.NOTIFY) {
 			if (!Display.isActive()) {
-				The5zigMod.getTrayManager().displayMessage("The 5zig Mod - " + I18n.translate("ingame_chat.new_message"), message);
+				The5zigMod.getTrayManager().displayMessage(The5zigMod.NAME + " - " + I18n.translate("ingame_chat.new_message"), message);
 			}
 			return false;
 		} else if (chatMessage.getAction() == ChatFilter.Action.AUTO_TEXT && !Strings.isNullOrEmpty(chatMessage.getAutoText())

@@ -65,7 +65,29 @@ public class EventListener {
 		registerListener(new JoinTextListener());
 	}
 
+	/** Collects listeners registered by {@link #recordRegistrations}, or null when not recording. */
+	private List<Object> recording;
+
+	/**
+	 * Runs {@code action} and returns every listener it registered, so they can be unregistered
+	 * together later (used for the per-account {@link io.icanlevitateoff.fivezigrebornrevived.mod.manager.DataManager}).
+	 */
+	public List<Object> recordRegistrations(Runnable action) {
+		List<Object> previous = recording;
+		List<Object> registered = new ArrayList<Object>();
+		recording = registered;
+		try {
+			action.run();
+		} finally {
+			recording = previous;
+		}
+		return registered;
+	}
+
 	public void registerListener(Object listener) {
+		if (recording != null) {
+			recording.add(listener);
+		}
 		try {
 			Class<?> clazz = listener.getClass();
 			for (Method method : clazz.getMethods()) {
@@ -92,6 +114,9 @@ public class EventListener {
 				if (method.isAnnotationPresent(EventHandler.class) && method.getParameterTypes().length == 1 && Event.class.isAssignableFrom(method.getParameterTypes()[0])) {
 					Class<? extends Event> eventClass = (Class<? extends Event>) method.getParameterTypes()[0];
 					List<RegisteredEventHandler> eventHandlers = registeredEvents.get(eventClass);
+					if (eventHandlers == null) {
+						continue;
+					}
 					for (Iterator<RegisteredEventHandler> iterator = eventHandlers.iterator(); iterator.hasNext(); ) {
 						RegisteredEventHandler registeredEventHandler = iterator.next();
 						if (registeredEventHandler.getInstance() == listener && registeredEventHandler.getMethod().equals(method)) {

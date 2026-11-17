@@ -32,7 +32,7 @@ public class ChatUsernameListener {
 	public boolean onServerChat(ChatEvent event) {
 		String message = event.getMessage();
 		if (message.contains(The5zigMod.getDataManager().getUsername()) && !Display.isActive() && The5zigMod.getConfig().getBool("notifyOnName")) {
-			The5zigMod.getTrayManager().displayMessage("The 5zig Mod - " + I18n.translate("ingame_chat.new_message"), ChatColor.stripColor(message));
+			The5zigMod.getTrayManager().displayMessage(The5zigMod.NAME + " - " + I18n.translate("ingame_chat.new_message"), ChatColor.stripColor(message));
 		}
 		return false;
 	}

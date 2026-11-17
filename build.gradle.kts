@@ -98,6 +98,8 @@ base { archivesName.set("5zig-Reborn-Revived") }
 
 repositories {
     mavenCentral()
+    maven("https://maven.terraformersmc.com/releases") { content { includeGroup("com.terraformersmc") } }
+    maven("https://maven.shedaniel.me") { content { includeGroup("me.shedaniel.cloth") } }
 }
 
 // Libraries Minecraft does not ship. Each one is compiled against and nested in the jar (jar-in-jar).
@@ -113,6 +115,15 @@ dependencies {
     }
     modConfig("net.fabricmc:fabric-loader:${prop("deps.fabric_loader")}")
     modConfig("net.fabricmc.fabric-api:fabric-api:${prop("deps.fabric_api")}")
+
+    // Mod Menu + Cloth Config: optional, compiled against but never bundled (see fabric.mod.json "suggests").
+    val modCompileOnly = if (unobfuscated) "compileOnly" else "modCompileOnly"
+    modCompileOnly("com.terraformersmc:modmenu:${prop("deps.modmenu")}") { isTransitive = false }
+    // Transitive for cloth-basic-math (colour fields); Fabric itself comes from the lines above.
+    modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:${prop("deps.cloth")}") {
+        exclude(group = "net.fabricmc")
+        exclude(group = "net.fabricmc.fabric-api")
+    }
 
     bundled.forEach {
         "implementation"(it) { isTransitive = false }
@@ -192,6 +203,7 @@ tasks.processResources {
         "minecraft" to prop("deps.minecraft_range"),
         "java" to javaVersion,
         "mixin_java" to if (javaVersion >= 21) "JAVA_21" else "JAVA_17",
+        "homepage" to prop("mod.homepage"),
         "azure_client_id" to (System.getenv("FIVEZIG_AZURE_CLIENT_ID") ?: prop("auth.azure_client_id")),
     )
     inputs.properties(props)

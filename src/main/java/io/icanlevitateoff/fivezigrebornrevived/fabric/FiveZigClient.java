@@ -30,7 +30,7 @@ import io.icanlevitateoff.fivezigrebornrevived.mod.MinecraftFactory;
 import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import io.icanlevitateoff.fivezigrebornrevived.mod.Version;
 import io.icanlevitateoff.fivezigrebornrevived.mod.api.PayloadUtils;
-import io.icanlevitateoff.fivezigrebornrevived.mod.gui.GuiSettings;
+import io.icanlevitateoff.fivezigrebornrevived.fabric.integration.FiveZigScreens;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.GuiYesNo;
 import io.icanlevitateoff.fivezigrebornrevived.mod.gui.YesNoCallback;
 import net.fabricmc.api.ClientModInitializer;
@@ -216,7 +216,7 @@ public class FiveZigClient implements ClientModInitializer {
 	 */
 	private static void addSettingsButton(Screen screen) {
 		Button button = Button.builder(Component.literal(MinecraftFactory.getClassProxyCallback().translate("menu.the5zigMod")),
-				b -> MinecraftFactory.getVars().displayScreen(new GuiSettings(null, "main"))).bounds(0, 0, 150, 20).build();
+				b -> MinecraftFactory.getVars().displayScreen(FiveZigScreens.settings(screen))).bounds(0, 0, 150, 20).build();
 		addOurs(screen, button);
 		followLayout(screen, () -> placeSettingsButton(screen, button));
 	}

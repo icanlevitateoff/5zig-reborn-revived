@@ -67,24 +67,32 @@ auth.azure_client_id=<your Azure application (client) ID>
 (or the `FIVEZIG_AZURE_CLIENT_ID` environment variable). Builds without it hide nothing but show
 "Microsoft login is not available in this build" when you press the button.
 
-The Azure app must be registered for **personal Microsoft accounts**, with **"Allow public client
+The official builds use an Azure app that Mojang has approved, so Microsoft sign-in works out of the
+box. You only need the steps below if you build with **your own** Azure app ID.
+
+Your app must be registered for **personal Microsoft accounts**, with **"Allow public client
 flows"** enabled, and Mojang must approve it for Minecraft services
 ([form](https://aka.ms/mce-reviewappid)); until then Microsoft sign-in works but the Minecraft step
 fails with "not approved by Mojang". Refresh tokens are stored in the password-encrypted accounts file.
 
 ## Making a release
-1. Bump `mod.version` in `gradle.properties` (e.g. `0.1.1` → `0.1.2`).
-2. Run `./gradlew build` and check it ends with `BUILD SUCCESSFUL`; all 12 jars should be in
-   `versions/*/build/libs/` with the new version in their names (ignore the `-sources` jars).
-3. Commit and push to `main`.
-4. On GitHub: **Releases → Draft a new release** → choose tag `v<version>` ("create new tag on publish",
-   target `main`), title `5zig Reborn Revived v<version>`.
-5. Release notes: only the changes since the previous release, e.g.
+1. Bump `mod.version` in `gradle.properties` (e.g. `0.5.4` → `0.5.5`).
+2. Write the release notes to `release-notes/v<version>.md`: only the changes since the previous
+   release, e.g.
    ```
    ## Changes
    - Fixed …
    ```
-6. Attach the 12 jars and publish. Tick "pre-release" if some versions have not been tested in-game.
+3. Commit and push to `main`.
+4. Run `./gradlew publishMods -Ppublish.dryRun` to check everything builds; nothing is uploaded.
+5. Run `./gradlew publishMods`. It uploads every version to CurseForge and creates the GitHub release
+   `v<version>` with all the jars, using the notes from step 2 for both.
+
+Publishing needs `curseforgeToken` and `githubToken` in `~/.gradle/gradle.properties` (never in the
+repo). A platform without its token only does a dry run. Releases are marked Release by default;
+set `publish.type` (release, beta or alpha) in `gradle.properties`, in one version's
+`versions/<v>/gradle.properties`, or for a single run with `-Ppublish.type=beta`. More detail is in
+the "Publishing" section of `FABRIC_PORT_NOTES.md`.
 
 ## License
 GPLv3, like the original project. See [LICENSE](LICENSE).

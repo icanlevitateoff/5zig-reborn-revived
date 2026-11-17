@@ -62,6 +62,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 	private static final int MAX_RECONNECT_TIME = 400;
 	private static Protocol protocol;
 
+
 	private final Queue<QueuedPacket> outboundPacketsQueue = Queues.newConcurrentLinkedQueue();
 	private Channel channel;
 	private boolean disconnected = false;
@@ -84,11 +85,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 	public void initLoop() {
 		if (CLIENT_NIO_EVENTLOOP == null) {
 			try {
-				CLIENT_NIO_EVENTLOOP = new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("5zig Netty Client").setDaemon(true).build());
+				CLIENT_NIO_EVENTLOOP = new NioEventLoopGroup(1, (new ThreadFactoryBuilder()).setNameFormat("5zig Netty Client").setDaemon(true).build());
 			} catch (Throwable throwable) {
 				The5zigMod.logger.error("Could not initialize Nio Event Loop Group! Possible Firewall or Antivirus-Software might be blocking outgoing connections!", throwable);
 				if (The5zigMod.getConfig().getBool("showConnecting")) {
-					The5zigMod.getOverlayMessage().displayMessage("The 5zig Mod", I18n.translate("connection.error"));
+					The5zigMod.getOverlayMessage().displayMessage(The5zigMod.NAME, I18n.translate("connection.error"));
 				}
 				return;
 			}
@@ -97,7 +98,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 
 	private void initConnection() {
 		if(GameProfiles.id(The5zigMod.getDataManager().getGameProfile()) == null) return;
-		new Thread(new Runnable() {
+		daemon(new Runnable() {
 			@Override
 			public void run() {
 				if (protocol == null) {
@@ -108,6 +109,8 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 					The5zigMod.newConversationDatabase();
 				}
 				if (!The5zigMod.getConfig().getBool("connectToServer"))
+					return;
+				if (!SessionGate.waitUntilQuiet())
 					return;
 
 				Bootstrap bootstrap = new Bootstrap().group(CLIENT_NIO_EVENTLOOP).handler(new ChannelInitializer() {
@@ -135,12 +138,12 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 				} catch (Throwable e) {
 					The5zigMod.logger.error("An Exception occurred while connecting to " + HOST + ":" + PORT, e);
 					if (The5zigMod.getConfig().getBool("showConnecting")) {
-						The5zigMod.getOverlayMessage().displayMessage("The 5zig Mod", I18n.translate("connection.error"));
+						The5zigMod.getOverlayMessage().displayMessage(The5zigMod.NAME, I18n.translate("connection.error"));
 					}
 					reconnect(The5zigMod.DEBUG ? 10 : 60);
 				}
 			}
-		}, "5zig Netty Bootstrap").start();
+		}, "5zig Netty Bootstrap");
 	}
 
 	@Override
@@ -219,7 +222,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 
 	public void reloadNow() {
 		disconnect();
-		new Thread(The5zigMod::newNetworkManager).start();
+		daemon(The5zigMod::newNetworkManager, "5zig Network Reload");
 	}
 
 	private void reconnectIn(int seconds) {
@@ -228,7 +231,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 		reconnecting = true;
 		reconnectTries++;
 		The5zigMod.logger.info("Reconnecting in {} seconds...", seconds);
-		new Thread(new Runnable() {
+		daemon(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -241,7 +244,18 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 					return;
 				The5zigMod.newNetworkManager();
 			}
-		}).start();
+		}, "5zig Network Reconnect");
+	}
+
+	/**
+	 * Starts a daemon thread. These threads can sleep for minutes (reconnect back-off) or block on a
+	 * connect, and a non-daemon one keeps the game from exiting until Minecraft's shutdown watchdog
+	 * writes a "Client shutdown" crash report.
+	 */
+	private static void daemon(Runnable runnable, String name) {
+		Thread thread = new Thread(runnable, name);
+		thread.setDaemon(true);
+		thread.start();
 	}
 
 	/**
@@ -385,14 +399,14 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 				this.connectionState = ConnectionState.HANDSHAKE;
 				The5zigMod.logger.debug("Handshaking...");
 				if (The5zigMod.getConfig().getBool("showConnecting")) {
-					The5zigMod.getOverlayMessage().displayMessage("The 5zig Mod", I18n.translate("connection.connecting"));
+					The5zigMod.getOverlayMessage().displayMessage(The5zigMod.NAME, I18n.translate("connection.connecting"));
 				}
 				break;
 			case LOGIN:
 				this.connectionState = ConnectionState.LOGIN;
 				The5zigMod.logger.debug("Logging in...");
 				if (The5zigMod.getConfig().getBool("showConnecting")) {
-					The5zigMod.getOverlayMessage().displayMessage("The 5zig Mod", I18n.translate("connection.logging_in"));
+					The5zigMod.getOverlayMessage().displayMessage(The5zigMod.NAME, I18n.translate("connection.logging_in"));
 				}
 				break;
 			case PLAY:
@@ -401,7 +415,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 				The5zigMod.logger.info("Connected after {} tries!", reconnectTries);
 				reconnectTries = 0;
 				if (The5zigMod.getConfig().getBool("showConnecting")) {
-					The5zigMod.getOverlayMessage().displayMessage("The 5zig Mod", I18n.translate("connection.connected"));
+					The5zigMod.getOverlayMessage().displayMessage(The5zigMod.NAME, I18n.translate("connection.connected"));
 				}
 				if (The5zigMod.getDataManager().getProfile().isShowServer()) {
 					The5zigMod.getDataManager().updateCurrentLobby();
@@ -410,7 +424,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 			case DISCONNECT:
 				this.connectionState = ConnectionState.DISCONNECT;
 				if (The5zigMod.getConfig().getBool("showConnecting")) {
-					The5zigMod.getOverlayMessage().displayMessage("The 5zig Mod", disconnectReason);
+					The5zigMod.getOverlayMessage().displayMessage(The5zigMod.NAME, disconnectReason);
 				}
 				for (Friend friend : The5zigMod.getFriendManager().getFriends()) {
 					if (friend.getStatus() != Friend.OnlineStatus.OFFLINE) {

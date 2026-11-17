@@ -41,7 +41,7 @@ public class GuiWelcome extends Gui {
 
 	public GuiWelcome() {
 		super(null);
-		The5zigMod.getTrayManager().displayMessage("Welcome to The 5zig Mod!",
+		The5zigMod.getTrayManager().displayMessage("Welcome to " + The5zigMod.NAME + "!",
 				"This Tray Notification will be displayed every time you get a new message from a Friend while you haven't focused your game. You can disable this feature by simply right clicking " +
 						"this icon and clicking on \"Disable\"");
 	}
@@ -98,7 +98,7 @@ public class GuiWelcome extends Gui {
 
 		int y = 48;
 		The5zigMod.getVars().drawString("Get supported while PvPing with many useful stats.", getWidth() / 2 - 150, y);
-		The5zigMod.getVars().drawString("Go to \"Options\" -> \"The 5zig Mod...\" to customize the mod.", getWidth() / 2 - 150, y += 16);
+		The5zigMod.getVars().drawString("Go to \"Options\" -> \"" + The5zigMod.NAME + "...\" to customize the mod.", getWidth() / 2 - 150, y += 16);
 		The5zigMod.getVars().drawString("Discover many different options.", getWidth() / 2 - 140, y += 12);
 		The5zigMod.getVars().drawString("Enable, disable or scale the mod.", getWidth() / 2 - 140, y += 12);
 		The5zigMod.getVars().drawString("Enjoy full support for many different servers", getWidth() / 2 - 150, y += 16);

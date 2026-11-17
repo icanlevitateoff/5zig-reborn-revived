@@ -42,6 +42,8 @@ public abstract class MixinConnectScreen {
 	//?} else {
 	/*private static void the5zig$connect(Screen parent, Minecraft minecraft, ServerAddress address, ServerData data, boolean quickPlay, CallbackInfo ci) {
 	*///?}
+		// Before the init check: a quick-play join at launch must hold off the 5zig network too.
+		io.icanlevitateoff.fivezigrebornrevived.mod.chat.network.SessionGate.onGameConnect();
 		if (!The5zigMod.hasBeenInitialized()) {
 			return;
 		}

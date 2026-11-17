@@ -570,7 +570,7 @@ public class ConfigNew {
 
 					@Override
 					public String getTitle() {
-						return "The 5zig Mod - " + I18n.translate("config.chat_settings.title");
+						return The5zigMod.NAME + " - " + I18n.translate("config.chat_settings.title");
 					}
 				}, "png", "jpg"));
 			}

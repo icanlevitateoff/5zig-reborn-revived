@@ -70,6 +70,8 @@ import java.util.Random;
  */
 public class The5zigMod {
 
+	/** Display name used in menu titles, notifications and the keybind category. */
+	public static final String NAME = "5Zig Reborn Revived";
 	public static final Logger logger = LogManager.getLogger("5zig");
 	public static final Marker networkMarker = MarkerManager.getMarker("Net");
 	public static final Random random = new Random();
@@ -173,14 +175,14 @@ public class The5zigMod {
 	 */
 	public static void init() {
 		if (initialized) {
-			throw new IllegalStateException("The 5zig Mod has been already initialized!");
+			throw new IllegalStateException(NAME + " has already been initialized!");
 		}
 		initialized = true;
 
 		long start = System.currentTimeMillis();
 		startDate = LocalDateTime.now();
 
-		logger.info("Initializing the 5zig Mod!");
+		logger.info("Initializing " + NAME + "!");
 		if (Transformer.FORGE) {
 			logger.info("Forge detected!");
 		}
@@ -219,7 +221,7 @@ public class The5zigMod {
 
 		// Listener and manager classes.
 		listener = new EventListener();
-		datamanager = new DataManager();
+		datamanager = DataManager.create();
 		keybindingManager = new KeybindingManager();
 		scheduler = new Scheduler();
 		listener.registerListener(scheduler);
@@ -267,7 +269,7 @@ public class The5zigMod {
 	 * Tray Icon, finishes the AsyncExecutor and closes the sql connection.
 	 */
 	public static void shutdown() {
-		logger.info("Stopping The 5zig Mod!");
+		logger.info("Stopping " + NAME + "!");
 		try {
 			if (api != null) {
 				api.getPluginManager().unloadAll();
@@ -293,7 +295,7 @@ public class The5zigMod {
 				TeamSpeak.getClient().disconnect();
 			}
 		} catch (Throwable throwable) {
-			logger.warn("Could not shutdown The 5zig Mod properly!", throwable);
+			logger.warn("Could not shut down " + NAME + " properly!", throwable);
 		}
 	}
 
@@ -672,7 +674,12 @@ public class The5zigMod {
 		return The5zigMod.getVars().isPlayerNull() || !The5zigMod.getConfig().getBool("transparentPauseMenu") || The5zigMod.getVars().getCurrentScreen() instanceof GuiTeamSpeak;
 	}
 
+	/** Replaces the per-account data (account switch); the old one's listeners are removed first. */
 	public static void reloadDataManager() {
-		datamanager = new DataManager();
+		DataManager old = datamanager;
+		if (old != null) {
+			old.close();
+		}
+		datamanager = DataManager.create();
 	}
 }

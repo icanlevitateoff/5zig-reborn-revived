@@ -64,7 +64,9 @@ import io.icanlevitateoff.fivezigrebornrevived.util.Utils;
 import eu.the5zig.util.minecraft.ChatColor;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class DataManager {
@@ -114,11 +116,43 @@ public class DataManager {
 	private boolean tsRequiresAuth = false;
 	private final TeamSpeakReconnectListener teamSpeakReconnectListener;
 
-	public DataManager() {
+	/** Everything this instance registered with the event listener, removed again by {@link #close()}. */
+	private List<Object> registeredListeners = Collections.emptyList();
+	private TeamSpeakListener teamSpeakListener;
+
+	/** Creates a DataManager and remembers the event listeners it (and its managers) registered. */
+	public static DataManager create() {
+		DataManager[] created = new DataManager[1];
+		List<Object> registered = The5zigMod.getListener().recordRegistrations(() -> created[0] = new DataManager());
+		created[0].registeredListeners = registered;
+		return created[0];
+	}
+
+	/**
+	 * Unregisters everything this instance registered. Called when an account switch replaces it;
+	 * without this every manager (AFK, timers, search, server stats...) ran twice after a switch.
+	 */
+	public void close() {
+		for (Object listener : registeredListeners) {
+			try {
+				The5zigMod.getListener().unregisterListener(listener);
+			} catch (RuntimeException e) {
+				The5zigMod.logger.warn("Could not unregister " + listener.getClass().getName(), e);
+			}
+		}
+		registeredListeners = Collections.emptyList();
+		if (teamSpeakListener != null) {
+			TeamSpeakEventDispatcher.unregisterListener(teamSpeakListener);
+			TeamSpeak.getClient().removeDisconnectListener(teamSpeakListener);
+			teamSpeakListener = null;
+		}
+	}
+
+	private DataManager() {
 		gameProfile = The5zigMod.getVars().getGameProfile();
 		UUID id = GameProfiles.id(gameProfile);
 		uuid = id == null ? UUID.randomUUID() : id;
-		profile = new Profile(0, Lists.newArrayList(Rank.USER), System.currentTimeMillis(), "Hey there, I'm using The 5zig Mod!", Friend.OnlineStatus.ONLINE, true, true, true, false, true, ChatColor.RESET);
+		profile = new Profile(0, Lists.newArrayList(Rank.USER), System.currentTimeMillis(), "Hey there, I'm using " + The5zigMod.NAME + "!", Friend.OnlineStatus.ONLINE, true, true, true, false, true, ChatColor.RESET);
 
 		registerServerInstance(new ServerInstanceTimolia());
 		registerServerInstance(new ServerInstanceGommeHD());
@@ -132,7 +166,7 @@ public class DataManager {
 		registerServerInstance(new ServerInstanceOCC());
 
 		The5zigMod.getListener().registerListener(teamSpeakReconnectListener = new TeamSpeakReconnectListener());
-		TeamSpeakListener teamSpeakListener = new TeamSpeakListener();
+		teamSpeakListener = new TeamSpeakListener();
 		TeamSpeakEventDispatcher.registerListener(teamSpeakListener);
 		TeamSpeak.getClient().addDisconnectListener(teamSpeakListener);
 		TeamSpeak.setDebugMode(The5zigMod.DEBUG);

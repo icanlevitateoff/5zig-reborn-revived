@@ -146,7 +146,7 @@ public class TeamSpeakClientImpl implements TeamSpeakClient
             }
         }
         if (this.autoReconnect && cause != null) {
-            new Thread("TeamSpeak Reconnect Thread") {
+            final Thread reconnectThread = new Thread("TeamSpeak Reconnect Thread") {
                 @Override
                 public void run() {
                     try {
@@ -158,7 +158,9 @@ public class TeamSpeakClientImpl implements TeamSpeakClient
                     }
                     TeamSpeakClientImpl.this.connect();
                 }
-            }.start();
+            };
+            reconnectThread.setDaemon(true);
+            reconnectThread.start();
         }
     }
     

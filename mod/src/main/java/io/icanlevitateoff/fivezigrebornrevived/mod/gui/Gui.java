@@ -19,6 +19,7 @@
 
 package io.icanlevitateoff.fivezigrebornrevived.mod.gui;
 
+import io.icanlevitateoff.fivezigrebornrevived.mod.The5zigMod;
 import eu.the5zig.mod.gui.*;
 
 import com.google.common.collect.Lists;
@@ -67,6 +68,11 @@ public abstract class Gui {
 	}
 
 	public Gui lastScreen;
+	/**
+	 * A plain Minecraft screen to return to when {@link #lastScreen} is null, e.g. Mod Menu's mod list
+	 * or vanilla Options. Without it, closing goes straight back to the game.
+	 */
+	public Object returnScreen;
 	private IGuiHandle handle;
 
 	protected HashMap<Integer, IButton> buttonIdLookup = Maps.newHashMap();
@@ -164,11 +170,20 @@ public abstract class Gui {
 		}
 		actionPerformed(button);
 		if (button.getId() == 200) {
-			MinecraftFactory.getVars().displayScreen(lastScreen);
+			goBack();
 		}
 	}
 
 	protected abstract void actionPerformed(IButton button);
+
+	/** Shows {@link #lastScreen}, or {@link #returnScreen} when there is no 5zig screen to go back to. */
+	public void goBack() {
+		if (lastScreen == null && returnScreen != null) {
+			MinecraftFactory.getVars().displayScreen(returnScreen);
+		} else {
+			MinecraftFactory.getVars().displayScreen(lastScreen);
+		}
+	}
 
 	/**
 	 * Draws the screen
@@ -182,7 +197,7 @@ public abstract class Gui {
 		if (getTitleName() != null)
 			drawCenteredString(getTitleName(), getWidth() / 2, 15);
 		else
-			drawCenteredString("The 5zig Mod - " + MinecraftFactory.getClassProxyCallback().translate(getTitleKey()), getWidth() / 2, 15);
+			drawCenteredString(The5zigMod.NAME + " - " + MinecraftFactory.getClassProxyCallback().translate(getTitleKey()), getWidth() / 2, 15);
 
 		// draw textfields and buttons
 		for (IButton button : buttons) {
@@ -277,6 +292,15 @@ public abstract class Gui {
 	}
 
 	protected void onKeyType(char character, int key) {
+	}
+
+	/**
+	 * Called from Handle for a key press that is not also a typed character event (Space, Delete,
+	 * arrows, F-keys, Ctrl shortcuts...). Typed characters arrive through {@link #keyTyped0} with key 0,
+	 * so without this, screens that react to key codes in {@link #onKeyType} never saw those keys.
+	 */
+	public void keyDown0(int key) {
+		onKeyType((char) 0, key);
 	}
 
 	public void keyPressed0(int key, int scanCode, int modifiers) {

@@ -85,7 +85,7 @@ public class KeybindingManager {
 	}
 
 	private IKeybinding registerKeybinding(String description, int keyCode, Class... guiToOpen) {
-		IKeybinding keybinding = The5zigMod.getVars().createKeybinding(description, keyCode, "The 5zig Mod");
+		IKeybinding keybinding = The5zigMod.getVars().createKeybinding(description, keyCode, The5zigMod.NAME);
 		if (guiToOpen != null && guiToOpen.length != 0) {
 			globalKeybindings.put(new RegisteredKeybinding(keybinding), guiToOpen);
 		}

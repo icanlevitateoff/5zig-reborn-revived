@@ -86,6 +86,6 @@ public class GuiViewImage extends Gui {
 
 	@Override
 	public String getTitleName() {
-		return "The 5zig Mod - " + imageData.getHash();
+		return The5zigMod.NAME + " - " + imageData.getHash();
 	}
 }

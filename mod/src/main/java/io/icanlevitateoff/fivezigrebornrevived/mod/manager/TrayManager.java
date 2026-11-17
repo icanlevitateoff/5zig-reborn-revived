@@ -67,14 +67,14 @@ public class TrayManager implements Runnable {
 		try {
 			minecraftIcon = ImageIO.read(The5zigMod.getVars().getMinecraftIcon());
 
-			trayIcon = new TrayIcon(minecraftIcon, "The 5zig Mod - " + MinecraftFactory.getVars().getUsername());
+			trayIcon = new TrayIcon(minecraftIcon, The5zigMod.NAME + " - " + MinecraftFactory.getVars().getUsername());
 
 			PopupMenu popupMenu = new PopupMenu();
 			MenuItem about = new MenuItem("About");
 			about.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					JOptionPane.showMessageDialog(null, "This Tray Icon is used by The 5zig Mod to notify you, when you receive a new Message.",
+					JOptionPane.showMessageDialog(null, "This Tray Icon is used by " + The5zigMod.NAME + " to notify you, when you receive a new Message.",
 							"Minecraft " + MinecraftFactory.getClassProxyCallback().getMinecraftVersion(), JOptionPane.PLAIN_MESSAGE, null);
 				}
 			});

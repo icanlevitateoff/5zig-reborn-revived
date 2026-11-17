@@ -498,7 +498,7 @@ public class GuiConversations extends Gui implements Clickable<Conversation> {
 
 				@Override
 				public String getTitle() {
-					return "The 5zig Mod - " + I18n.translate("chat.select_image");
+					return The5zigMod.NAME + " - " + I18n.translate("chat.select_image");
 				}
 			}, new File(The5zigMod.getVars().getMinecraftDataDirectory(), "screenshots"), "png", "jpg"));
 		}

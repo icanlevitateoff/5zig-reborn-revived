@@ -52,6 +52,11 @@ public class ColorFormattingItem extends ConfigItem<ChatColor> {
 		object.addProperty(getKey(), get().name());
 	}
 
+	/** The values this item cycles through. */
+	public static List<ChatColor> getFormattings() {
+		return formattings;
+	}
+
 	@Override
 	public void next() {
 		ChatColor current = !formattings.contains(get()) ? ChatColor.RESET : get();

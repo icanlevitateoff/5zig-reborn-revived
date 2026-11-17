@@ -173,6 +173,6 @@ public class GuiCreateGroupChatSelectFriends extends Gui {
 
 	@Override
 	public String getTitleName() {
-		return "The 5zig Mod - " + I18n.translate("group.invite.title", name);
+		return The5zigMod.NAME + " - " + I18n.translate("group.invite.title", name);
 	}
 }

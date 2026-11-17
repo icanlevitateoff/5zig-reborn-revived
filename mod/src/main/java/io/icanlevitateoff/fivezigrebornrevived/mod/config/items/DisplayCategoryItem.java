@@ -38,6 +38,10 @@ public class DisplayCategoryItem extends NonConfigItem {
 		this.displayCategory = displayCategory;
 	}
 
+	public String getDisplayCategory() {
+		return displayCategory;
+	}
+
 	@Override
 	public void action() {
 		The5zigMod.getVars().displayScreen(new GuiSettings(The5zigMod.getVars().getCurrentScreen(), displayCategory));

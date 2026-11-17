@@ -110,7 +110,7 @@ public class GuiSettingsList extends Gui {
 
 	@Override
 	public String getTitleName() {
-		return "The 5zig Mod - " + configItem.translate();
+		return The5zigMod.NAME + " - " + configItem.translate();
 	}
 
 	private class SettingsRow extends BasicRow {
